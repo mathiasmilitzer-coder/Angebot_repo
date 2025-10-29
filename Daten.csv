@@ -1,0 +1,26 @@
+Artikelnummer;Dienstleistung;Fahrzeugart;Preis Netto;Preis Brutto
+I-PKW;Innenreinigung;PKW;85.00;101.15
+I-LIMO;Innenreinigung;LIMO;95.00;113.05
+I-KOMBI;Innenreinigung;Kombi;105.00;124.95
+I-SUV;Innenreinigung;SUV;115.00;136.85
+I-BUS;Innenreinigung;Bus;140.00;166.60
+P-PKW;Polsterreinigung;PKW;55.00;65.45
+P-LIMO;Polsterreinigung;LIMO;65.00;77.35
+P-KOMBI;Polsterreinigung;Kombi;70.00;83.30
+P-SUV;Polsterreinigung;SUV;85.00;101.15
+P-BUS;Polsterreinigung;Bus;110.00;130.90
+T-PKW;Teppichaufbereitung;PKW;45.00;53.55
+T-LIMO;Teppichaufbereitung;LIMO;55.00;65.45
+T-KOMBI;Teppichaufbereitung;Kombi;60.00;71.40
+T-SUV;Teppichaufbereitung;SUV;70.00;83.30
+T-BUS;Teppichaufbereitung;Bus;90.00;107.10
+G-PKW;Geruchsentfernung;PKW;70.00;83.30
+G-LIMO;Geruchsentfernung;LIMO;80.00;95.20
+G-KOMBI;Geruchsentfernung;Kombi;90.00;107.10
+G-SUV;Geruchsentfernung;SUV;100.00;119.00
+G-BUS;Geruchsentfernung;Bus;130.00;154.70
+O-PKW;Ozonbehandlung;PKW;95.00;113.05
+O-LIMO;Ozonbehandlung;LIMO;105.00;124.95
+O-KOMBI;Ozonbehandlung;Kombi;115.00;136.85
+O-SUV;Ozonbehandlung;SUV;125.00;148.75
+O-BUS;Ozonbehandlung;Bus;150.00;178.50
