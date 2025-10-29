@@ -1,0 +1,169 @@
+    <h1>🛠️ Angebots-Konfigurator</h1>
+    <p>Bitte wählen Sie zuerst Ihre Datei und anschließend die Fahrzeugart, um die verfügbaren Dienstleistungen anzuzeigen.</p>
+
+    <input type="file" id="priceFile" accept=".csv, .txt">
+    <div id="statusMessage" style="margin-top: 10px;"></div>
+
+    <hr>
+
+    <h2>1. Fahrzeugart wählen:</h2>
+    <select id="vehicleFilter" disabled>
+        <option value="">-- Fahrzeugart auswählen --</option>
+        </select>
+    
+    <div id="servicesContainer" style="margin-top: 30px;">
+        <h2>2. Leistungen auswählen:</h2>
+        <p id="promptText">Bitte wählen Sie zuerst eine Fahrzeugart.</p>
+        </div>
+    
+    <hr>
+
+    <h2 style="margin-top: 20px;">3. Gesamtpreis (Netto):</h2>
+    <div id="totalPrice" style="font-size: 1.8em; font-weight: bold; color: #007bff;">€ 0,00</div>
+
+    ```
+
+---
+
+### 2. JavaScript-Logik hinzufügen
+
+Fügen Sie diesen Code in den `<script>`-Tag unter dem HTML-Gerüst ein. Dieser Code **ersetzt** die alte `handleFileUpload` und `displayPrices` Funktion.
+
+```javascript
+    document.getElementById('priceFile').addEventListener('change', handleFileUpload);
+    document.getElementById('vehicleFilter').addEventListener('change', filterAndDisplayServices);
+    
+    const vehicleFilter = document.getElementById('vehicleFilter');
+    const servicesContainer = document.getElementById('servicesContainer');
+    const totalPriceDisplay = document.getElementById('totalPrice');
+    const statusDiv = document.getElementById('statusMessage');
+    
+    let allPriceData = []; // Speichert alle Daten aus der CSV-Datei
+
+    // === Step 1: Daten einlesen und Fahrzeugarten füllen ===
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const csvText = e.target.result;
+            processData(csvText);
+        };
+        reader.readAsText(file);
+    }
+
+    function processData(csvText) {
+        const lines = csvText.split(/\r\n|\n/);
+        allPriceData = [];
+        const vehicleTypes = new Set();
+        let isValidData = false;
+
+        // Die erste Zeile (Überschriften) wird übersprungen (i=1)
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            const separator = line.includes(';') ? ';' : ',';
+            const columns = line.split(separator).map(col => col.trim().replace(/"/g, ''));
+
+            // Wir erwarten Artikelnummer, Dienstleistung, Fahrzeugart, Preis Netto, Preis Brutto
+            if (columns.length >= 4) {
+                const priceNetto = parseFloat(columns[3].replace(',', '.'));
+                
+                // Speichern der bereinigten Daten
+                allPriceData.push({
+                    artikelnummer: columns[0],
+                    dienstleistung: columns[1],
+                    fahrzeugart: columns[2],
+                    preisNetto: priceNetto
+                });
+                vehicleTypes.add(columns[2]);
+                isValidData = true;
+            }
+        }
+
+        if (isValidData) {
+            statusDiv.className = 'success';
+            statusDiv.textContent = `Erfolgreich ${allPriceData.length} Preise geladen.`;
+            populateVehicleFilter(vehicleTypes);
+        } else {
+            statusDiv.className = 'error';
+            statusDiv.textContent = 'Fehler beim Lesen oder keine gültigen Daten gefunden.';
+            vehicleFilter.disabled = true;
+        }
+    }
+
+    // === Step 2: Dropdown-Liste mit Fahrzeugarten füllen ===
+    function populateVehicleFilter(vehicleTypes) {
+        vehicleFilter.innerHTML = '<option value="">-- Fahrzeugart auswählen --</option>';
+        vehicleTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            vehicleFilter.appendChild(option);
+        });
+        vehicleFilter.disabled = false;
+        servicesContainer.innerHTML = '<p id="promptText">Bitte wählen Sie zuerst eine Fahrzeugart.</p>';
+    }
+
+    // === Step 3: Filtern und Checkboxen anzeigen ===
+    function filterAndDisplayServices() {
+        const selectedVehicle = vehicleFilter.value;
+        servicesContainer.innerHTML = '';
+        totalPriceDisplay.textContent = '€ 0,00'; // Gesamtpreis zurücksetzen
+
+        if (!selectedVehicle) {
+            servicesContainer.innerHTML = '<p id="promptText">Bitte wählen Sie zuerst eine Fahrzeugart.</p>';
+            return;
+        }
+
+        const filteredServices = allPriceData.filter(item => item.fahrzeugart === selectedVehicle);
+        
+        filteredServices.forEach(item => {
+            const checkboxId = `service-${item.artikelnummer}`;
+            
+            // Container für Checkbox und Label
+            const div = document.createElement('div');
+            div.style.marginBottom = '10px';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = checkboxId;
+            checkbox.value = item.preisNetto; // Den Preis direkt als Wert speichern
+            checkbox.addEventListener('change', calculateTotal);
+            
+            const label = document.createElement('label');
+            label.htmlFor = checkboxId;
+            // Dienstleistung und Preis im Label anzeigen
+            label.textContent = `${item.dienstleistung} (${formatPrice(item.preisNetto)} Netto)`;
+
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            servicesContainer.appendChild(div);
+        });
+        
+        // Stellen Sie sicher, dass die Überschrift wieder angezeigt wird, wenn Dienste geladen sind
+        const h2 = document.createElement('h2');
+        h2.textContent = '2. Leistungen auswählen:';
+        servicesContainer.insertBefore(h2, servicesContainer.firstChild);
+    }
+
+    // === Step 4: Gesamtpreis berechnen ===
+    function calculateTotal() {
+        let total = 0;
+        // Alle ausgewählten Checkboxen durchlaufen
+        const selectedCheckboxes = servicesContainer.querySelectorAll('input[type="checkbox"]:checked');
+        
+        selectedCheckboxes.forEach(checkbox => {
+            total += parseFloat(checkbox.value);
+        });
+
+        totalPriceDisplay.textContent = formatPrice(total);
+    }
+    
+    // Hilfsfunktion zur Preisformatierung
+    function formatPrice(amount) {
+        // Stellt sicher, dass das Komma als Dezimaltrennzeichen verwendet wird
+        return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+    }
