@@ -8,8 +8,14 @@
         body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
         h1, h2 { color: #333; }
         #totalPrice { color: #007bff; }
-        label { margin-left: 8px; cursor: pointer; }
-        input[type="checkbox"] { margin-right: 5px; }
+        label { margin-left: 15px; cursor: pointer; display: inline-block; vertical-align: top; } /* Abstand für skalierte Checkbox */
+        
+        /* NEU: Checkboxen doppelt so groß */
+        input[type="checkbox"] { 
+            transform: scale(2); /* Skaliert die Checkbox auf die doppelte Größe */
+            margin-right: 5px; 
+            vertical-align: middle; /* Stellt die Checkbox mittig zum Text */
+        }
         hr { border: 0; height: 1px; background: #ccc; margin: 20px 0; }
         .success { color: green; font-weight: bold; }
         .error { color: red; font-weight: bold; }
@@ -18,7 +24,7 @@
 <body>
 
     <h1>🛠️ Angebots-Konfigurator</h1>
-    <p>Leistungen und Preise werden automatisch aus der Datei **Daten.csv** geladen.</p>
+    <p>Leistungen und Preise werden automatisch aus der Datei **Daten.csv** geladen. Es werden **Bruttopreise** verwendet.</p>
     
     <div id="statusMessage" class="success" style="margin-top: 10px;">Daten werden geladen...</div>
 
@@ -27,20 +33,19 @@
     <h2>1. Fahrzeugart wählen:</h2>
     <select id="vehicleFilter" disabled>
         <option value="">-- Fahrzeugart auswählen --</option>
-        </select>
+    </select>
     
     <div id="servicesContainer" style="margin-top: 30px;">
         <h2>2. Leistungen auswählen:</h2>
         <p id="promptText">Bitte warten, bis die Daten geladen sind...</p>
-        </div>
+    </div>
     
     <hr>
 
-    <h2 style="margin-top: 20px;">3. Gesamtpreis (Netto):</h2>
-    <div id="totalPrice" style="font-size: 1.8em; font-weight: bold; color: #007bff;">€ 0,00</div>
+    <h2 style="margin-top: 20px;">3. Gesamtpreis (Brutto):</h2> <div id="totalPrice" style="font-size: 1.8em; font-weight: bold; color: #007bff;">€ 0,00</div>
 
 <script>
-    const CSV_FILE_PATH = 'Daten.csv'; // <--- Pfad zur CSV-Datei
+    const CSV_FILE_PATH = 'Daten.csv'; // Pfad zur CSV-Datei
     
     const vehicleFilter = document.getElementById('vehicleFilter');
     const servicesContainer = document.getElementById('servicesContainer');
@@ -49,10 +54,9 @@
     
     let allPriceData = [];
 
-    // Event-Listener für den Filter
     document.getElementById('vehicleFilter').addEventListener('change', filterAndDisplayServices);
     
-    // === Step 1: Daten automatisch laden (ersetzt den File-Upload) ===
+    // === Daten automatisch laden ===
     async function loadDataFromCSV() {
         try {
             const response = await fetch(CSV_FILE_PATH);
@@ -63,7 +67,7 @@
             processData(csvText);
         } catch (error) {
             statusDiv.className = 'error';
-            statusDiv.textContent = `FEHLER: ${error.message}. Ist die Datei "${CSV_FILE_PATH}" im Root-Verzeichnis vorhanden?`;
+            statusDiv.textContent = `FEHLER: ${error.message}. Überprüfen Sie den Dateinamen und das Hosting-Setup.`;
             vehicleFilter.disabled = true;
         }
     }
@@ -83,15 +87,16 @@
             const separator = line.includes(';') ? ';' : ',';
             const columns = line.split(separator).map(col => col.trim().replace(/"/g, ''));
 
-            // Wir erwarten Artikelnummer, Dienstleistung, Fahrzeugart, Preis Netto
-            if (columns.length >= 4) {
-                const priceNetto = parseFloat(columns[3].replace(',', '.'));
+            // Wir erwarten: Artikelnummer (0), Dienstleistung (1), Fahrzeugart (2), Preis Netto (3), Preis Brutto (4)
+            if (columns.length >= 5) { // Mindestens 5 Spalten benötigt
+                // NEU: Verwenden von columns[4] für den Bruttopreis
+                const priceBrutto = parseFloat(columns[4].replace(',', '.')); 
                 
                 allPriceData.push({
                     artikelnummer: columns[0],
                     dienstleistung: columns[1],
                     fahrzeugart: columns[2],
-                    preisNetto: priceNetto
+                    preisBrutto: priceBrutto // Speichern des Bruttopreises
                 });
                 vehicleTypes.add(columns[2]);
                 isValidData = true;
@@ -104,12 +109,12 @@
             populateVehicleFilter(vehicleTypes);
         } else {
             statusDiv.className = 'error';
-            statusDiv.textContent = 'FEHLER: Keine gültigen Daten in der CSV-Datei gefunden.';
+            statusDiv.textContent = 'FEHLER: Keine gültigen Daten (mind. 5 Spalten erwartet) in der CSV-Datei gefunden.';
             vehicleFilter.disabled = true;
         }
     }
 
-    // === Step 2: Dropdown-Liste mit Fahrzeugarten füllen ===
+    // === Dropdown-Liste mit Fahrzeugarten füllen ===
     function populateVehicleFilter(vehicleTypes) {
         vehicleFilter.innerHTML = '<option value="">-- Fahrzeugart auswählen --</option>';
         vehicleTypes.forEach(type => {
@@ -122,14 +127,13 @@
         servicesContainer.querySelector('#promptText').textContent = 'Bitte wählen Sie eine Fahrzeugart, um die Leistungen zu sehen.';
     }
 
-    // === Step 3: Filtern und Checkboxen anzeigen ===
+    // === Filtern und Checkboxen anzeigen ===
     function filterAndDisplayServices() {
         const selectedVehicle = vehicleFilter.value;
         
-        // Löschen aller Elemente, außer der Überschrift (falls vorhanden)
         const currentElements = servicesContainer.querySelectorAll(':not(h2)');
         currentElements.forEach(el => el.remove());
-        totalPriceDisplay.textContent = '€ 0,00'; // Gesamtpreis zurücksetzen
+        totalPriceDisplay.textContent = '€ 0,00';
 
         if (!selectedVehicle) {
             servicesContainer.innerHTML += '<p id="promptText">Bitte wählen Sie eine Fahrzeugart, um die Leistungen zu sehen.</p>';
@@ -142,17 +146,18 @@
             const checkboxId = `service-${item.artikelnummer}`;
             
             const div = document.createElement('div');
-            div.style.marginBottom = '10px';
+            div.style.marginBottom = '15px'; /* Mehr Abstand wegen der Skalierung */
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.id = checkboxId;
-            checkbox.value = item.preisNetto;
+            checkbox.value = item.preisBrutto; // NEU: Bruttopreis als Wert
             checkbox.addEventListener('change', calculateTotal);
             
             const label = document.createElement('label');
             label.htmlFor = checkboxId;
-            label.textContent = `${item.dienstleistung} (${formatPrice(item.preisNetto)} Netto)`;
+            // NEU: "Netto" auf "Brutto" geändert
+            label.textContent = `${item.dienstleistung} (${formatPrice(item.preisBrutto)} Brutto)`;
 
             div.appendChild(checkbox);
             div.appendChild(label);
@@ -160,7 +165,7 @@
         });
     }
 
-    // === Step 4: Gesamtpreis berechnen ===
+    // === Gesamtpreis berechnen (nutzt den Bruttopreis-Wert) ===
     function calculateTotal() {
         let total = 0;
         const selectedCheckboxes = servicesContainer.querySelectorAll('input[type="checkbox"]:checked');
@@ -177,7 +182,7 @@
         return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
     }
 
-    // Startet den Ladevorgang, wenn die Seite fertig geladen ist
+    // Startet den Ladevorgang
     loadDataFromCSV();
 </script>
 </body>
