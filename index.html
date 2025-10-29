@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KFZ-Angebots-Konfigurator</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1200px; margin: auto; }
         h1, h2 { color: #333; }
         #totalPrice { color: #007bff; }
         
@@ -18,16 +18,12 @@
             line-height: 1.5em;
         }
         
-        /* NEU: Fahrzeugart Auswahlfeld doppelt so groß */
+        /* Fahrzeugart Auswahlfeld doppelt so groß */
         #vehicleFilter {
-            /* Skaliert das Element auf die doppelte Größe */
             transform: scale(2); 
-            /* Sorgt dafür, dass die Skalierung linksbündig startet */
             transform-origin: left; 
-            /* Fügt oben und unten mehr Platz hinzu */
             margin: 20px 0 20px 20px; 
             padding: 5px;
-            /* Stellt sicher, dass das Element als Block behandelt wird, um die Skalierung zu unterstützen */
             display: block; 
         }
 
@@ -41,12 +37,35 @@
         hr { border: 0; height: 1px; background: #ccc; margin: 40px 0; }
         .success { color: green; font-weight: bold; }
         .error { color: red; font-weight: bold; }
+
+        /* NEU: Flex-Container für Innen- und Außenbereich */
+        #servicesFlexContainer {
+            display: flex;
+            justify-content: space-between;
+            gap: 40px;
+            margin-top: 20px;
+        }
+        /* Style für die einzelnen Spalten */
+        .service-column {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        .service-column h3 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin-top: 0;
+        }
+        .service-item {
+            margin-bottom: 20px; /* Abstand für skalierte Checkbox */
+        }
     </style>
 </head>
 <body>
 
-    <h1>Autopflege Kiel Angebots-Konfigurator</h1>
-    
+    <h1>🛠️ Angebots-Konfigurator</h1>
+    <p>Leistungen und Preise werden automatisch aus der Datei **Daten.csv** geladen. Es werden **Bruttopreise** verwendet.</p>
     
     <div id="statusMessage" class="success" style="margin-top: 10px;">Daten werden geladen...</div>
 
@@ -59,7 +78,16 @@
     
     <div id="servicesContainer" style="margin-top: 60px;">
         <h2>2. Leistungen auswählen:</h2>
-        <p id="promptText">Bitte warten, bis die Daten geladen sind...</p>
+        <p id="promptText">Bitte wählen Sie eine Fahrzeugart, um die Leistungen zu sehen.</p>
+        
+        <div id="servicesFlexContainer">
+            <div id="servicesInnen" class="service-column">
+                <h3>Innenreinigung & Aufbereitung</h3>
+                </div>
+            <div id="servicesAussen" class="service-column">
+                <h3>Außenpflege & Lackarbeiten</h3>
+                </div>
+        </div>
     </div>
     
     <hr>
@@ -71,7 +99,8 @@
     const CSV_FILE_PATH = 'Daten.csv';
     
     const vehicleFilter = document.getElementById('vehicleFilter');
-    const servicesContainer = document.getElementById('servicesContainer');
+    const servicesInnen = document.getElementById('servicesInnen');
+    const servicesAussen = document.getElementById('servicesAussen');
     const totalPriceDisplay = document.getElementById('totalPrice');
     const statusDiv = document.getElementById('statusMessage');
     
@@ -102,21 +131,26 @@
         const vehicleTypes = new Set();
         let isValidData = false;
 
+        // Erwartet jetzt 6 Spalten: 0:Artikel, 1:Dienstleistung, 2:Fahrzeugart, 3:Netto, 4:Brutto, 5:Bereich
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i].trim();
             if (!line) continue;
             
             const separator = line.includes(';') ? ';' : ',';
+            // ACHTUNG: Der neue Code muss 6 Spalten einlesen
             const columns = line.split(separator).map(col => col.trim().replace(/"/g, ''));
 
-            if (columns.length >= 5) {
+            // NEU: Mindestens 6 Spalten benötigt
+            if (columns.length >= 6) {
                 const priceBrutto = parseFloat(columns[4].replace(',', '.')); 
                 
                 allPriceData.push({
                     artikelnummer: columns[0],
                     dienstleistung: columns[1],
                     fahrzeugart: columns[2],
-                    preisBrutto: priceBrutto
+                    preisNetto: parseFloat(columns[3].replace(',', '.')), // Nur falls wir es später brauchen
+                    preisBrutto: priceBrutto, 
+                    bereich: columns[5] // NEU: Spalte 5 (sechste Spalte) ist der Bereich
                 });
                 vehicleTypes.add(columns[2]);
                 isValidData = true;
@@ -125,11 +159,11 @@
 
         if (isValidData) {
             statusDiv.className = 'success';
-            statusDiv.textContent = `Daten erfolgreich geladen.`;
+            statusDiv.textContent = `Daten erfolgreich aus "${CSV_FILE_PATH}" geladen. (${allPriceData.length} Einträge)`;
             populateVehicleFilter(vehicleTypes);
         } else {
             statusDiv.className = 'error';
-            statusDiv.textContent = 'FEHLER: Keine gültigen Daten (mind. 5 Spalten erwartet) in der CSV-Datei gefunden.';
+            statusDiv.textContent = 'FEHLER: Keine gültigen Daten (mind. 6 Spalten erwartet) in der CSV-Datei gefunden. Bitte CSV prüfen.';
             vehicleFilter.disabled = true;
         }
     }
@@ -144,21 +178,29 @@
             vehicleFilter.appendChild(option);
         });
         vehicleFilter.disabled = false;
-        servicesContainer.querySelector('#promptText').textContent = 'Bitte wählen Sie eine Fahrzeugart, um die Leistungen zu sehen.';
+        document.getElementById('promptText').textContent = 'Bitte wählen Sie eine Fahrzeugart, um die Leistungen zu sehen.';
+        clearServiceContainers();
+    }
+
+    // Hilfsfunktion zum Leeren der Container
+    function clearServiceContainers() {
+        servicesInnen.querySelectorAll('.service-item').forEach(el => el.remove());
+        servicesAussen.querySelectorAll('.service-item').forEach(el => el.remove());
     }
 
     // === Filtern und Checkboxen anzeigen ===
     function filterAndDisplayServices() {
         const selectedVehicle = vehicleFilter.value;
         
-        const currentElements = servicesContainer.querySelectorAll(':not(h2)');
-        currentElements.forEach(el => el.remove());
+        clearServiceContainers(); // Container leeren
         totalPriceDisplay.textContent = '€ 0,00';
 
         if (!selectedVehicle) {
-            servicesContainer.innerHTML += '<p id="promptText">Bitte wählen Sie eine Fahrzeugart, um die Leistungen zu sehen.</p>';
+            document.getElementById('promptText').textContent = 'Bitte wählen Sie eine Fahrzeugart, um die Leistungen zu sehen.';
             return;
         }
+
+        document.getElementById('promptText').textContent = ''; // Prompt ausblenden
 
         const filteredServices = allPriceData.filter(item => item.fahrzeugart === selectedVehicle);
         
@@ -166,7 +208,7 @@
             const checkboxId = `service-${item.artikelnummer}`;
             
             const div = document.createElement('div');
-            div.style.marginBottom = '20px';
+            div.className = 'service-item';
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
@@ -180,14 +222,20 @@
 
             div.appendChild(checkbox);
             div.appendChild(label);
-            servicesContainer.appendChild(div);
+
+            // NEU: Zuweisung basierend auf dem "Bereich"
+            if (item.bereich && item.bereich.toUpperCase() === 'INNEN') {
+                servicesInnen.appendChild(div);
+            } else if (item.bereich && item.bereich.toUpperCase() === 'AUSSEN') {
+                servicesAussen.appendChild(div);
+            }
         });
     }
 
     // === Gesamtpreis berechnen ===
     function calculateTotal() {
         let total = 0;
-        const selectedCheckboxes = servicesContainer.querySelectorAll('input[type="checkbox"]:checked');
+        const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"]:checked');
         
         selectedCheckboxes.forEach(checkbox => {
             total += parseFloat(checkbox.value);
@@ -201,6 +249,7 @@
         return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
     }
 
+    // Startet den Ladevorgang
     loadDataFromCSV();
 </script>
 </body>
