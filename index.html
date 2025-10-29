@@ -223,7 +223,7 @@
         servicesAussen.querySelectorAll('.service-item').forEach(el => el.remove());
     }
 
-    // === Filtern und Checkboxen anzeigen ===
+    // === Filtern, Sortieren und Checkboxen anzeigen ===
     function filterAndDisplayServices() {
         const selectedVehicle = vehicleFilter.value;
         
@@ -237,9 +237,12 @@
 
         document.getElementById('promptText').textContent = '';
 
-        // Filtert nach der ausgewählten Fahrzeugart
+        // 1. Filtern nach der ausgewählten Fahrzeugart
         const filteredServices = allPriceData.filter(item => item.fahrzeugart === selectedVehicle);
         
+        // 2. Sortiere die Dienstleistungen alphabetisch nach dem Namen
+        filteredServices.sort((a, b) => a.dienstleistung.localeCompare(b.dienstleistung));
+
         filteredServices.forEach(item => {
             const checkboxId = `service-${item.artikelnummer}-${item.fahrzeugart}`; // Eindeutige ID
 
