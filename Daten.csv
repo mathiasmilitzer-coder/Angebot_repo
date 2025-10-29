@@ -1,36 +1,319 @@
 Artikelnummer;Dienstleistung;Fahrzeugart;Preis Netto;Preis Brutto;Bereich
-I-PKW;Innenreinigung;PKW;85.00;101.15;Innen
-I-LIMO;Innenreinigung;LIMO;95.00;113.05;Innen
-I-KOMBI;Innenreinigung;Kombi;105.00;124.95;Innen
-I-SUV;Innenreinigung;SUV;115.00;136.85;Innen
-I-BUS;Innenreinigung;Bus;140.00;166.60;Innen
-P-PKW;Polsterreinigung;PKW;55.00;65.45;Innen
-P-LIMO;Polsterreinigung;LIMO;65.00;77.35;Innen
-P-KOMBI;Polsterreinigung;Kombi;70.00;83.30;Innen
-P-SUV;Polsterreinigung;SUV;85.00;101.15;Innen
-P-BUS;Polsterreinigung;Bus;110.00;130.90;Innen
-T-PKW;Teppichaufbereitung;PKW;45.00;53.55;Innen
-T-LIMO;Teppichaufbereitung;LIMO;55.00;65.45;Innen
-T-KOMBI;Teppichaufbereitung;Kombi;60.00;71.40;Innen
-T-SUV;Teppichaufbereitung;SUV;70.00;83.30;Innen
-T-BUS;Teppichaufbereitung;Bus;90.00;107.10;Innen
-G-PKW;Geruchsentfernung;PKW;70.00;83.30;Innen
-G-LIMO;Geruchsentfernung;LIMO;80.00;95.20;Innen
-G-KOMBI;Geruchsentfernung;Kombi;90.00;107.10;Innen
-G-SUV;Geruchsentfernung;SUV;100.00;119.00;Innen
-G-BUS;Geruchsentfernung;Bus;130.00;154.70;Innen
-O-PKW;Ozonbehandlung;PKW;95.00;113.05;Innen
-O-LIMO;Ozonbehandlung;LIMO;105.00;124.95;Innen
-O-KOMBI;Ozonbehandlung;Kombi;115.00;136.85;Innen
-O-SUV;Ozonbehandlung;SUV;125.00;148.75;Innen
-O-BUS;Ozonbehandlung;Bus;150.00;178.50;Innen
-PV-PKW;Politur/Versiegelung;PKW;190.00;226.10;Aussen
-PV-LIMO;Politur/Versiegelung;LIMO;230.00;273.70;Aussen
-PV-KOMBI;Politur/Versiegelung;Kombi;260.00;309.40;Aussen
-PV-SUV;Politur/Versiegelung;SUV;290.00;345.10;Aussen
-PV-BUS;Politur/Versiegelung;Bus;350.00;416.50;Aussen
-LA-PKW;Lackaufbereitung;PKW;380.00;452.20;Aussen
-LA-LIMO;Lackaufbereitung;LIMO;440.00;523.60;Aussen
-LA-KOMBI;Lackaufbereitung;Kombi;490.00;583.10;Aussen
-LA-SUV;Lackaufbereitung;SUV;550.00;654.50;Aussen
-LA-BUS;Lackaufbereitung;Bus;650.00;773.50;Aussen
+// BUS
+B-INN;Fahrzeuginnereinigung;BUS;83.99;100.05;Innen
+B-LA;Lackaufbereitung;BUS;168.03;200.06;Aussen
+B-FA;Fahrzeugaufbereitung;BUS;250.00;297.50;Aussen
+B-GER;Geruchsentfernung;BUS;83.99;100.05;Innen
+B-HIM;Himmel-Reinigung;BUS;58.78;70.04;Innen
+B-HAAR;Hundehaarentfernung;BUS;83.99;100.05;Innen
+B-LED;Lederpflege;BUS;67.18;80.04;Innen
+B-NANO-L;Nano-Lack-Versiegelung;BUS;545.38;649.90;Aussen
+B-NANO-S;Nano-Scheiben-Versiegelung;BUS;100.84;120.00;Aussen
+B-PV;Politur / Versiegelung;BUS;117.65;140.00;Aussen
+B-POL;Polsterreinigung;BUS;83.99;100.05;Innen
+B-TEP;Teppichaufbereitung;BUS;75.50;89.85;Innen
+DU-LA;Lackaufbereitung;BUS;377.31;449.00;Aussen
+DU-PV;Politur / Versiegelung;BUS;210.08;250.00;Aussen
+DU-ALF;Auslieferung GW/NW;BUS;165.00;196.35;Innen
+DU-FA;Fahrzeugaufbereitung;BUS;270.00;321.30;Aussen
+M-INN;Bus-Innenreinigung;BUS;235.00;279.65;Innen
+S-CER;Ceramic Versiegelung;BUS;1638.66;1950.00;Aussen
+// VAN (Doblo-Klasse)
+D-ALF;Auslieferung GW/NW;VAN;125.00;148.75;Innen
+D-FA;Fahrzeugaufbereitung;VAN;230.00;273.70;Aussen
+// Kombi
+K-CER;Ceramic Versiegelung;KOMBI;546.22;650.00;Aussen
+K-INN;Fahrzeuginnereinigung;KOMBI;58.78;70.04;Innen
+K-GER;Geruchsentfernung;KOMBI;67.18;80.04;Innen
+K-HIM;Himmel-Reinigung;KOMBI;58.78;70.04;Innen
+K-HAAR;Hundehaarentfernung;KOMBI;58.78;70.04;Innen
+K-LA;Lackaufbereitung;KOMBI;142.82;170.06;Aussen
+K-LED;Lederpflege;KOMBI;58.78;70.04;Innen
+K-NANO-L;Nano-Lack-Versiegelung;KOMBI;293.82;349.65;Aussen
+K-NANO-S;Nano-Scheiben-Versiegelung;KOMBI;83.99;100.05;Aussen
+K-PV;Politur / Versiegelung;KOMBI;67.18;80.04;Aussen
+K-POL;Polsterreinigung;KOMBI;58.78;70.04;Innen
+K-TEP;Teppichaufbereitung;KOMBI;75.58;89.99;Innen
+// Limo
+L-CER;Ceramic Versiegelung;LIMO;630.25;750.00;Aussen
+L-INN;Fahrzeuginnereinigung;LIMO;58.78;70.04;Innen
+L-GER;Geruchsentfernung;LIMO;67.18;80.04;Innen
+L-HIM;Himmel-Reinigung;LIMO;58.78;70.04;Innen
+L-HAAR;Hundehaarentfernung;LIMO;58.78;70.04;Innen
+L-LA;Lackaufbereitung;LIMO;142.82;170.06;Aussen
+L-LED;Lederpflege;LIMO;58.78;70.04;Innen
+L-NANO-L;Nano-Lack-Versiegelung;LIMO;293.28;348.90;Aussen
+L-NANO-S;Nano-Scheiben-Versiegelung;LIMO;83.99;100.05;Aussen
+L-PV;Politur / Versiegelung;LIMO;67.18;80.04;Aussen
+L-POL;Polsterreinigung;LIMO;58.78;70.04;Innen
+L-TEP;Teppichaufbereitung;LIMO;75.50;89.85;Innen
+// PKW
+P-ALF;Auslieferung GW/NW;PKW;70.00;83.30;Innen
+P-CER;Ceramic Versiegelung;PKW;462.18;550.00;Aussen
+P-FA;Fahrzeugaufbereitung;PKW;140.00;166.60;Aussen
+P-INN;Fahrzeuginnereinigung;PKW;58.78;70.04;Innen
+P-GER;Geruchsentfernung;PKW;50.37;59.94;Innen
+P-HIM;Himmel-Reinigung;PKW;58.78;70.04;Innen
+P-HAAR;Hundehaarentfernung;PKW;58.78;70.04;Innen
+P-LA;Lackaufbereitung;PKW;126.05;150.00;Aussen
+P-LED;Lederpflege;PKW;58.77;70.04;Innen
+P-NANO-L;Nano-Lack-Versiegelung;PKW;251.26;299.00;Aussen
+P-NANO-S;Nano-Scheiben-Versiegelung;PKW;83.99;100.05;Aussen
+P-PV;Politur / Versiegelung;PKW;58.78;70.04;Aussen
+P-POL;Polsterreinigung;PKW;58.77;70.04;Innen
+P-TEP;Teppichaufbereitung;PKW;50.38;59.95;Innen
+// SUV
+S-ALF;Auslieferung GW/NW;SUV;75.00;89.25;Innen
+S-CER;Ceramic Versiegelung;SUV;798.32;950.00;Aussen
+S-FA;Fahrzeugaufbereitung;SUV;150.00;178.50;Aussen
+S-INN;Fahrzeuginnereinigung;SUV;67.18;80.04;Innen
+S-GER;Geruchsentfernung;SUV;67.18;80.04;Innen
+S-HIM;Himmel-Reinigung;SUV;58.78;70.04;Innen
+S-HAAR;Hundehaarentfernung;SUV;67.18;80.04;Innen
+S-LA;Lackaufbereitung;SUV;151.22;180.00;Aussen
+S-LED;Lederpflege;SUV;67.18;80.04;Innen
+S-NANO-L;Nano-Lack-Versiegelung;SUV;420.16;500.00;Aussen
+S-NANO-S;Nano-Scheiben-Versiegelung;SUV;83.99;100.05;Aussen
+S-PV;Politur / Versiegelung;SUV;117.65;140.00;Aussen
+S-POL;Polsterreinigung;SUV;67.18;80.04;Innen
+S-TEP;Teppichaufbereitung;SUV;75.59;89.95;Innen
+// TRANSPORTER
+T-PV;Politur / Versiegelung;TRANSPORTER;180.00;214.20;Aussen
+X-WAST;Fahrzeugwäsche Transporter;TRANSPORTER;60.00;71.40;Aussen
+// WOMO
+W-CELZ;Ceramic Langzeitversiegelung;WOMO;1764.71;2100.00;Aussen
+W-CER;Ceramic Versiegelung;WOMO;1764.71;2100.00;Aussen
+W-INN;Fahrzeuginnenreinigung;WOMO;168.03;200.06;Innen
+W-NANO-L;Nano-Lack-Versiegelung;WOMO;1176.47;1400.00;Aussen
+W-NANO-S;Nano-Scheiben-Versiegelung;WOMO;126.05;150.00;Aussen
+W-PV;Politur / Versiegelung;WOMO;420.17;500.00;Aussen
+W-W;Wohnmobilwäsche;WOMO;210.08;250.00;Aussen
+// CABRIO
+X-CABV;Cabrioverdeck Versiegelung;CABRIO;32.77;39.00;Aussen
+X-CABR;Cabrioverdeck-Reinigung;CABRIO;50.42;60.00;Aussen
+// ALLGEMEINE DIENSTE (DUPLIZIERT FÜR ALLE FAHRZEUGARTEN)
+X-AUFW-BUS;Arbeiten nach Aufwand;BUS;69.00;82.11;Innen
+X-AUFW-VAN;Arbeiten nach Aufwand;VAN;69.00;82.11;Innen
+X-AUFW-KOMBI;Arbeiten nach Aufwand;KOMBI;69.00;82.11;Innen
+X-AUFW-LIMO;Arbeiten nach Aufwand;LIMO;69.00;82.11;Innen
+X-AUFW-PKW;Arbeiten nach Aufwand;PKW;69.00;82.11;Innen
+X-AUFW-SUV;Arbeiten nach Aufwand;SUV;69.00;82.11;Innen
+X-AUFW-TRANSPORTER;Arbeiten nach Aufwand;TRANSPORTER;69.00;82.11;Innen
+X-AUFW-WOMO;Arbeiten nach Aufwand;WOMO;69.00;82.11;Innen
+X-AUFW-CABRIO;Arbeiten nach Aufwand;CABRIO;69.00;82.11;Innen
+X-DATI-BUS;Dataport Tarif-Fahrzeuginnenreinigung;BUS;70.58;84.00;Innen
+X-DATI-VAN;Dataport Tarif-Fahrzeuginnenreinigung;VAN;70.58;84.00;Innen
+X-DATI-KOMBI;Dataport Tarif-Fahrzeuginnenreinigung;KOMBI;70.58;84.00;Innen
+X-DATI-LIMO;Dataport Tarif-Fahrzeuginnenreinigung;LIMO;70.58;84.00;Innen
+X-DATI-PKW;Dataport Tarif-Fahrzeuginnenreinigung;PKW;70.58;84.00;Innen
+X-DATI-SUV;Dataport Tarif-Fahrzeuginnenreinigung;SUV;70.58;84.00;Innen
+X-DATI-TRANSPORTER;Dataport Tarif-Fahrzeuginnenreinigung;TRANSPORTER;70.58;84.00;Innen
+X-DATI-WOMO;Dataport Tarif-Fahrzeuginnenreinigung;WOMO;70.58;84.00;Innen
+X-DATI-CABRIO;Dataport Tarif-Fahrzeuginnenreinigung;CABRIO;70.58;84.00;Innen
+X-DELL-BUS;Dellenbeseitigung;BUS;75.63;90.00;Aussen
+X-DELL-VAN;Dellenbeseitigung;VAN;75.63;90.00;Aussen
+X-DELL-KOMBI;Dellenbeseitigung;KOMBI;75.63;90.00;Aussen
+X-DELL-LIMO;Dellenbeseitigung;LIMO;75.63;90.00;Aussen
+X-DELL-PKW;Dellenbeseitigung;PKW;75.63;90.00;Aussen
+X-DELL-SUV;Dellenbeseitigung;SUV;75.63;90.00;Aussen
+X-DELL-TRANSPORTER;Dellenbeseitigung;TRANSPORTER;75.63;90.00;Aussen
+X-DELL-WOMO;Dellenbeseitigung;WOMO;75.63;90.00;Aussen
+X-DELL-CABRIO;Dellenbeseitigung;CABRIO;75.63;90.00;Aussen
+X-DWER-BUS;Demontage Werbebeschriftung;BUS;49.58;59.00;Aussen
+X-DWER-VAN;Demontage Werbebeschriftung;VAN;49.58;59.00;Aussen
+X-DWER-KOMBI;Demontage Werbebeschriftung;KOMBI;49.58;59.00;Aussen
+X-DWER-LIMO;Demontage Werbebeschriftung;LIMO;49.58;59.00;Aussen
+X-DWER-PKW;Demontage Werbebeschriftung;PKW;49.58;59.00;Aussen
+X-DWER-SUV;Demontage Werbebeschriftung;SUV;49.58;59.00;Aussen
+X-DWER-TRANSPORTER;Demontage Werbebeschriftung;TRANSPORTER;49.58;59.00;Aussen
+X-DWER-WOMO;Demontage Werbebeschriftung;WOMO;49.58;59.00;Aussen
+X-DWER-CABRIO;Demontage Werbebeschriftung;CABRIO;49.58;59.00;Aussen
+X-ENE-BUS;Energiekosten Pauschale;BUS;16.81;20.00;Innen
+X-ENE-VAN;Energiekosten Pauschale;VAN;16.81;20.00;Innen
+X-ENE-KOMBI;Energiekosten Pauschale;KOMBI;16.81;20.00;Innen
+X-ENE-LIMO;Energiekosten Pauschale;LIMO;16.81;20.00;Innen
+X-ENE-PKW;Energiekosten Pauschale;PKW;16.81;20.00;Innen
+X-ENE-SUV;Energiekosten Pauschale;SUV;16.81;20.00;Innen
+X-ENE-TRANSPORTER;Energiekosten Pauschale;TRANSPORTER;16.81;20.00;Innen
+X-ENE-WOMO;Energiekosten Pauschale;WOMO;16.81;20.00;Innen
+X-ENE-CABRIO;Energiekosten Pauschale;CABRIO;16.81;20.00;Innen
+X-FAHD-BUS;Fahrzeug Desinfektion;BUS;150.00;178.50;Innen
+X-FAHD-VAN;Fahrzeug Desinfektion;VAN;150.00;178.50;Innen
+X-FAHD-KOMBI;Fahrzeug Desinfektion;KOMBI;150.00;178.50;Innen
+X-FAHD-LIMO;Fahrzeug Desinfektion;LIMO;150.00;178.50;Innen
+X-FAHD-PKW;Fahrzeug Desinfektion;PKW;150.00;178.50;Innen
+X-FAHD-SUV;Fahrzeug Desinfektion;SUV;150.00;178.50;Innen
+X-FAHD-TRANSPORTER;Fahrzeug Desinfektion;TRANSPORTER;150.00;178.50;Innen
+X-FAHD-WOMO;Fahrzeug Desinfektion;WOMO;150.00;178.50;Innen
+X-FAHD-CABRIO;Fahrzeug Desinfektion;CABRIO;150.00;178.50;Innen
+X-FAHD2-BUS;Fahrzeug-Desinfektion;BUS;300.00;357.00;Innen
+X-FAHD2-VAN;Fahrzeug-Desinfektion;VAN;300.00;357.00;Innen
+X-FAHD2-KOMBI;Fahrzeug-Desinfektion;KOMBI;300.00;357.00;Innen
+X-FAHD2-LIMO;Fahrzeug-Desinfektion;LIMO;300.00;357.00;Innen
+X-FAHD2-PKW;Fahrzeug-Desinfektion;PKW;300.00;357.00;Innen
+X-FAHD2-SUV;Fahrzeug-Desinfektion;SUV;300.00;357.00;Innen
+X-FAHD2-TRANSPORTER;Fahrzeug-Desinfektion;TRANSPORTER;300.00;357.00;Innen
+X-FAHD2-WOMO;Fahrzeug-Desinfektion;WOMO;300.00;357.00;Innen
+X-FAHD2-CABRIO;Fahrzeug-Desinfektion;CABRIO;300.00;357.00;Innen
+X-WAS-BUS;Fahrzeugwäsche Spezial;BUS;45.00;53.55;Aussen
+X-WAS-VAN;Fahrzeugwäsche Spezial;VAN;45.00;53.55;Aussen
+X-WAS-KOMBI;Fahrzeugwäsche Spezial;KOMBI;45.00;53.55;Aussen
+X-WAS-LIMO;Fahrzeugwäsche Spezial;LIMO;45.00;53.55;Aussen
+X-WAS-PKW;Fahrzeugwäsche Spezial;PKW;45.00;53.55;Aussen
+X-WAS-SUV;Fahrzeugwäsche Spezial;SUV;45.00;53.55;Aussen
+X-WAS-TRANSPORTER;Fahrzeugwäsche Spezial;TRANSPORTER;45.00;53.55;Aussen
+X-WAS-WOMO;Fahrzeugwäsche Spezial;WOMO;45.00;53.55;Aussen
+X-WAS-CABRIO;Fahrzeugwäsche Spezial;CABRIO;45.00;53.55;Aussen
+X-WASN-BUS;Fahrzeugwäsche normal;BUS;33.61;40.00;Aussen
+X-WASN-VAN;Fahrzeugwäsche normal;VAN;33.61;40.00;Aussen
+X-WASN-KOMBI;Fahrzeugwäsche normal;KOMBI;33.61;40.00;Aussen
+X-WASN-LIMO;Fahrzeugwäsche normal;LIMO;33.61;40.00;Aussen
+X-WASN-PKW;Fahrzeugwäsche normal;PKW;33.61;40.00;Aussen
+X-WASN-SUV;Fahrzeugwäsche normal;SUV;33.61;40.00;Aussen
+X-WASN-TRANSPORTER;Fahrzeugwäsche normal;TRANSPORTER;33.61;40.00;Aussen
+X-WASN-WOMO;Fahrzeugwäsche normal;WOMO;33.61;40.00;Aussen
+X-WASN-CABRIO;Fahrzeugwäsche normal;CABRIO;33.61;40.00;Aussen
+X-GUT-BUS;Gutschein Code;BUS;0.00;0.00;Innen
+X-GUT-VAN;Gutschein Code;VAN;0.00;0.00;Innen
+X-GUT-KOMBI;Gutschein Code;KOMBI;0.00;0.00;Innen
+X-GUT-LIMO;Gutschein Code;LIMO;0.00;0.00;Innen
+X-GUT-PKW;Gutschein Code;PKW;0.00;0.00;Innen
+X-GUT-SUV;Gutschein Code;SUV;0.00;0.00;Innen
+X-GUT-TRANSPORTER;Gutschein Code;TRANSPORTER;0.00;0.00;Innen
+X-GUT-WOMO;Gutschein Code;WOMO;0.00;0.00;Innen
+X-GUT-CABRIO;Gutschein Code;CABRIO;0.00;0.00;Innen
+X-HOL-BUS;Hol- und Bring-Service;BUS;25.00;29.75;Innen
+X-HOL-VAN;Hol- und Bring-Service;VAN;25.00;29.75;Innen
+X-HOL-KOMBI;Hol- und Bring-Service;KOMBI;25.00;29.75;Innen
+X-HOL-LIMO;Hol- und Bring-Service;LIMO;25.00;29.75;Innen
+X-HOL-PKW;Hol- und Bring-Service;PKW;25.00;29.75;Innen
+X-HOL-SUV;Hol- und Bring-Service;SUV;25.00;29.75;Innen
+X-HOL-TRANSPORTER;Hol- und Bring-Service;TRANSPORTER;25.00;29.75;Innen
+X-HOL-WOMO;Hol- und Bring-Service;WOMO;25.00;29.75;Innen
+X-HOL-CABRIO;Hol- und Bring-Service;CABRIO;25.00;29.75;Innen
+X-KLI-BUS;Klimafilter wechsel;BUS;57.98;69.00;Innen
+X-KLI-VAN;Klimafilter wechsel;VAN;57.98;69.00;Innen
+X-KLI-KOMBI;Klimafilter wechsel;KOMBI;57.98;69.00;Innen
+X-KLI-LIMO;Klimafilter wechsel;LIMO;57.98;69.00;Innen
+X-KLI-PKW;Klimafilter wechsel;PKW;57.98;69.00;Innen
+X-KLI-SUV;Klimafilter wechsel;SUV;57.98;69.00;Innen
+X-KLI-TRANSPORTER;Klimafilter wechsel;TRANSPORTER;57.98;69.00;Innen
+X-KLI-WOMO;Klimafilter wechsel;WOMO;57.98;69.00;Innen
+X-KLI-CABRIO;Klimafilter wechsel;CABRIO;57.98;69.00;Innen
+X-LLURC-BUS;LLUR Cockpitreinigung;BUS;19.50;23.21;Innen
+X-LLURC-VAN;LLUR Cockpitreinigung;VAN;19.50;23.21;Innen
+X-LLURC-KOMBI;LLUR Cockpitreinigung;KOMBI;19.50;23.21;Innen
+X-LLURC-LIMO;LLUR Cockpitreinigung;LIMO;19.50;23.21;Innen
+X-LLURC-PKW;LLUR Cockpitreinigung;PKW;19.50;23.21;Innen
+X-LLURC-SUV;LLUR Cockpitreinigung;SUV;19.50;23.21;Innen
+X-LLURC-TRANSPORTER;LLUR Cockpitreinigung;TRANSPORTER;19.50;23.21;Innen
+X-LLURC-WOMO;LLUR Cockpitreinigung;WOMO;19.50;23.21;Innen
+X-LLURC-CABRIO;LLUR Cockpitreinigung;CABRIO;19.50;23.21;Innen
+X-LLURI-BUS;LLUR Fahrzeuginnenreinigung;BUS;39.96;47.55;Innen
+X-LLURI-VAN;LLUR Fahrzeuginnenreinigung;VAN;39.96;47.55;Innen
+X-LLURI-KOMBI;LLUR Fahrzeuginnenreinigung;KOMBI;39.96;47.55;Innen
+X-LLURI-LIMO;LLUR Fahrzeuginnenreinigung;LIMO;39.96;47.55;Innen
+X-LLURI-PKW;LLUR Fahrzeuginnenreinigung;PKW;39.96;47.55;Innen
+X-LLURI-SUV;LLUR Fahrzeuginnenreinigung;SUV;39.96;47.55;Innen
+X-LLURI-TRANSPORTER;LLUR Fahrzeuginnenreinigung;TRANSPORTER;39.96;47.55;Innen
+X-LLURI-WOMO;LLUR Fahrzeuginnenreinigung;WOMO;39.96;47.55;Innen
+X-LLURI-CABRIO;LLUR Fahrzeuginnenreinigung;CABRIO;39.96;47.55;Innen
+X-LLURF-BUS;LLUR Fensterreinigung;BUS;19.50;23.21;Innen
+X-LLURF-VAN;LLUR Fensterreinigung;VAN;19.50;23.21;Innen
+X-LLURF-KOMBI;LLUR Fensterreinigung;KOMBI;19.50;23.21;Innen
+X-LLURF-LIMO;LLUR Fensterreinigung;LIMO;19.50;23.21;Innen
+X-LLURF-PKW;LLUR Fensterreinigung;PKW;19.50;23.21;Innen
+X-LLURF-SUV;LLUR Fensterreinigung;SUV;19.50;23.21;Innen
+X-LLURF-TRANSPORTER;LLUR Fensterreinigung;TRANSPORTER;19.50;23.21;Innen
+X-LLURF-WOMO;LLUR Fensterreinigung;WOMO;19.50;23.21;Innen
+X-LLURF-CABRIO;LLUR Fensterreinigung;CABRIO;19.50;23.21;Innen
+X-LLURP-BUS;LLUR Polsterreinigung;BUS;18.00;21.42;Innen
+X-LLURP-VAN;LLUR Polsterreinigung;VAN;18.00;21.42;Innen
+X-LLURP-KOMBI;LLUR Polsterreinigung;KOMBI;18.00;21.42;Innen
+X-LLURP-LIMO;LLUR Polsterreinigung;LIMO;18.00;21.42;Innen
+X-LLURP-PKW;LLUR Polsterreinigung;PKW;18.00;21.42;Innen
+X-LLURP-SUV;LLUR Polsterreinigung;SUV;18.00;21.42;Innen
+X-LLURP-TRANSPORTER;LLUR Polsterreinigung;TRANSPORTER;18.00;21.42;Innen
+X-LLURP-WOMO;LLUR Polsterreinigung;WOMO;18.00;21.42;Innen
+X-LLURP-CABRIO;LLUR Polsterreinigung;CABRIO;18.00;21.42;Innen
+X-MAH-BUS;Mahngebühren;BUS;4.20;5.00;Innen
+X-MAH-VAN;Mahngebühren;VAN;4.20;5.00;Innen
+X-MAH-KOMBI;Mahngebühren;KOMBI;4.20;5.00;Innen
+X-MAH-LIMO;Mahngebühren;LIMO;4.20;5.00;Innen
+X-MAH-PKW;Mahngebühren;PKW;4.20;5.00;Innen
+X-MAH-SUV;Mahngebühren;SUV;4.20;5.00;Innen
+X-MAH-TRANSPORTER;Mahngebühren;TRANSPORTER;4.20;5.00;Innen
+X-MAH-WOMO;Mahngebühren;WOMO;4.20;5.00;Innen
+X-MAH-CABRIO;Mahngebühren;CABRIO;4.20;5.00;Innen
+X-MOW-BUS;Montage Werbebeschriftung;BUS;39.95;47.54;Aussen
+X-MOW-VAN;Montage Werbebeschriftung;VAN;39.95;47.54;Aussen
+X-MOW-KOMBI;Montage Werbebeschriftung;KOMBI;39.95;47.54;Aussen
+X-MOW-LIMO;Montage Werbebeschriftung;LIMO;39.95;47.54;Aussen
+X-MOW-PKW;Montage Werbebeschriftung;PKW;39.95;47.54;Aussen
+X-MOW-SUV;Montage Werbebeschriftung;SUV;39.95;47.54;Aussen
+X-MOW-TRANSPORTER;Montage Werbebeschriftung;TRANSPORTER;39.95;47.54;Aussen
+X-MOW-WOMO;Montage Werbebeschriftung;WOMO;39.95;47.54;Aussen
+X-MOW-CABRIO;Montage Werbebeschriftung;CABRIO;39.95;47.54;Aussen
+X-MOT-BUS;Motorwäsche;BUS;58.82;70.00;Aussen
+X-MOT-VAN;Motorwäsche;VAN;58.82;70.00;Aussen
+X-MOT-KOMBI;Motorwäsche;KOMBI;58.82;70.00;Aussen
+X-MOT-LIMO;Motorwäsche;LIMO;58.82;70.00;Aussen
+X-MOT-PKW;Motorwäsche;PKW;58.82;70.00;Aussen
+X-MOT-SUV;Motorwäsche;SUV;58.82;70.00;Aussen
+X-MOT-TRANSPORTER;Motorwäsche;TRANSPORTER;58.82;70.00;Aussen
+X-MOT-WOMO;Motorwäsche;WOMO;58.82;70.00;Aussen
+X-MOT-CABRIO;Motorwäsche;CABRIO;58.82;70.00;Aussen
+X-OZO-BUS;OZON Behandlung;BUS;58.77;70.04;Innen
+X-OZO-VAN;OZON Behandlung;VAN;58.77;70.04;Innen
+X-OZO-KOMBI;OZON Behandlung;KOMBI;58.77;70.04;Innen
+X-OZO-LIMO;OZON Behandlung;LIMO;58.77;70.04;Innen
+X-OZO-PKW;OZON Behandlung;PKW;58.77;70.04;Innen
+X-OZO-SUV;OZON Behandlung;SUV;58.77;70.04;Innen
+X-OZO-TRANSPORTER;OZON Behandlung;TRANSPORTER;58.77;70.04;Innen
+X-OZO-WOMO;OZON Behandlung;WOMO;58.77;70.04;Innen
+X-OZO-CABRIO;OZON Behandlung;CABRIO;58.77;70.04;Innen
+X-LINO-BUS;Reinigung Linoleumboden;BUS;152.00;180.88;Innen
+X-LINO-VAN;Reinigung Linoleumboden;VAN;152.00;180.88;Innen
+X-LINO-KOMBI;Reinigung Linoleumboden;KOMBI;152.00;180.88;Innen
+X-LINO-LIMO;Reinigung Linoleumboden;LIMO;152.00;180.88;Innen
+X-LINO-PKW;Reinigung Linoleumboden;PKW;152.00;180.88;Innen
+X-LINO-SUV;Reinigung Linoleumboden;SUV;152.00;180.88;Innen
+X-LINO-TRANSPORTER;Reinigung Linoleumboden;TRANSPORTER;152.00;180.88;Innen
+X-LINO-WOMO;Reinigung Linoleumboden;WOMO;152.00;180.88;Innen
+X-LINO-CABRIO;Reinigung Linoleumboden;CABRIO;152.00;180.88;Innen
+X-LOK-BUS;Reinigung Lokomotive 4530108214/185;BUS;0.00;0.00;Aussen
+X-LOK-VAN;Reinigung Lokomotive 4530108214/185;VAN;0.00;0.00;Aussen
+X-LOK-KOMBI;Reinigung Lokomotive 4530108214/185;KOMBI;0.00;0.00;Aussen
+X-LOK-LIMO;Reinigung Lokomotive 4530108214/185;LIMO;0.00;0.00;Aussen
+X-LOK-PKW;Reinigung Lokomotive 4530108214/185;PKW;0.00;0.00;Aussen
+X-LOK-SUV;Reinigung Lokomotive 4530108214/185;SUV;0.00;0.00;Aussen
+X-LOK-TRANSPORTER;Reinigung Lokomotive 4530108214/185;TRANSPORTER;0.00;0.00;Aussen
+X-LOK-WOMO;Reinigung Lokomotive 4530108214/185;WOMO;0.00;0.00;Aussen
+X-LOK-CABRIO;Reinigung Lokomotive 4530108214/185;CABRIO;0.00;0.00;Aussen
+X-SWA-BUS;Scheinwerfer Aufbereitung;BUS;84.03;100.00;Aussen
+X-SWA-VAN;Scheinwerfer Aufbereitung;VAN;84.03;100.00;Aussen
+X-SWA-KOMBI;Scheinwerfer Aufbereitung;KOMBI;84.03;100.00;Aussen
+X-SWA-LIMO;Scheinwerfer Aufbereitung;LIMO;84.03;100.00;Aussen
+X-SWA-PKW;Scheinwerfer Aufbereitung;PKW;84.03;100.00;Aussen
+X-SWA-SUV;Scheinwerfer Aufbereitung;SUV;84.03;100.00;Aussen
+X-SWA-TRANSPORTER;Scheinwerfer Aufbereitung;TRANSPORTER;84.03;100.00;Aussen
+X-SWA-WOMO;Scheinwerfer Aufbereitung;WOMO;84.03;100.00;Aussen
+X-SWA-CABRIO;Scheinwerfer Aufbereitung;CABRIO;84.03;100.00;Aussen
+X-TAN-BUS;Tankservice Siehe Quittungskopie;BUS;0.00;0.00;Innen
+X-TAN-VAN;Tankservice Siehe Quittungskopie;VAN;0.00;0.00;Innen
+X-TAN-KOMBI;Tankservice Siehe Quittungskopie;KOMBI;0.00;0.00;Innen
+X-TAN-LIMO;Tankservice Siehe Quittungskopie;LIMO;0.00;0.00;Innen
+X-TAN-PKW;Tankservice Siehe Quittungskopie;PKW;0.00;0.00;Innen
+X-TAN-SUV;Tankservice Siehe Quittungskopie;SUV;0.00;0.00;Innen
+X-TAN-TRANSPORTER;Tankservice Siehe Quittungskopie;TRANSPORTER;0.00;0.00;Innen
+X-TAN-WOMO;Tankservice Siehe Quittungskopie;WOMO;0.00;0.00;Innen
+X-TAN-CABRIO;Tankservice Siehe Quittungskopie;CABRIO;0.00;0.00;Innen
+X-VERZ-BUS;Verzugszinsen;BUS;0.00;0.00;Innen
+X-VERZ-VAN;Verzugszinsen;VAN;0.00;0.00;Innen
+X-VERZ-KOMBI;Verzugszinsen;KOMBI;0.00;0.00;Innen
+X-VERZ-LIMO;Verzugszinsen;LIMO;0.00;0.00;Innen
+X-VERZ-PKW;Verzugszinsen;PKW;0.00;0.00;Innen
+X-VERZ-SUV;Verzugszinsen;SUV;0.00;0.00;Innen
+X-VERZ-TRANSPORTER;Verzugszinsen;TRANSPORTER;0.00;0.00;Innen
+X-VERZ-WOMO;Verzugszinsen;WOMO;0.00;0.00;Innen
+X-VERZ-CABRIO;Verzugszinsen;CABRIO;0.00;0.00;Innen
