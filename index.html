@@ -12,13 +12,13 @@
         /* Allgemeine Anpassung der Checkbox-Label-Ausrichtung */
         label { margin-left: 15px; cursor: pointer; display: inline-block; vertical-align: middle; } 
         
-        /* Schrift der Leistungen 1/3 der ursprünglichen Größe (ca. 0.66em) */
+        /* Schrift der Leistungen 1/3 der ursprünglichen Größe (kompakt) */
         #servicesContainer label {
             font-size: 0.66em;
             line-height: 1.2em;
         }
         
-        /* Fahrzeugart Auswahlfeld doppelt so groß */
+        /* Fahrzeugart Auswahlfeld doppelt so groß (Desktop-Standard) */
         #vehicleFilter {
             transform: scale(2); 
             transform-origin: left; 
@@ -27,9 +27,9 @@
             display: block; 
         }
 
-        /* NEU: Checkboxen nur noch 1.5x so groß */
+        /* Checkboxen 1.5x so groß */
         input[type="checkbox"] { 
-            transform: scale(1.5); /* Reduziert von 2 auf 1.5 */
+            transform: scale(1.5); 
             margin-right: 5px; 
             vertical-align: middle;
         }
@@ -38,7 +38,7 @@
         .success { color: green; font-weight: bold; }
         .error { color: red; font-weight: bold; }
 
-        /* Flex-Container für Innen- und Außenbereich */
+        /* Flex-Container für Innen- und Außenbereich (Desktop-Ansicht) */
         #servicesFlexContainer {
             display: flex;
             justify-content: space-between;
@@ -60,6 +60,39 @@
         .service-item {
             margin-bottom: 5px; 
         }
+
+        /* ************************************** */
+        /* RESPONSIVE DESIGN FÜR HANDYS (Media Query) */
+        /* ************************************** */
+        @media (max-width: 768px) {
+            
+            /* Spalten (Innen/Aussen) stapeln sich vertikal */
+            #servicesFlexContainer {
+                flex-direction: column; 
+                gap: 20px; 
+            }
+
+            /* Etwas größere Schrift und Checkboxen für bessere Bedienbarkeit auf Handys */
+            #servicesContainer label {
+                font-size: 0.8em; 
+                line-height: 1.4em;
+            }
+            input[type="checkbox"] {
+                transform: scale(1.8);
+            }
+            
+            /* Auswahlbox wieder auf normale Größe zurücksetzen */
+            #vehicleFilter {
+                transform: scale(1);
+                margin: 10px 0;
+                width: 100%;
+            }
+            
+            /* Den Abstand im Body für schmale Bildschirme reduzieren */
+            body {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -74,6 +107,15 @@
     <h2>1. Fahrzeugart wählen:</h2>
     <select id="vehicleFilter" disabled>
         <option value="">-- Fahrzeugart auswählen --</option>
+        <option value="PKW">PKW</option>
+        <option value="SUV">SUV</option>
+        <option value="LIMO">Limousine</option>
+        <option value="KOMBI">Kombi</option>
+        <option value="BUS">Bus</option>
+        <option value="VAN">Van / Doblo-Klasse</option>
+        <option value="TRANSPORTER">Transporter</option>
+        <option value="WOMO">Wohnmobil (WOMO)</option>
+        <option value="CABRIO">Cabrio</option>
     </select>
     
     <div id="servicesContainer" style="margin-top: 60px;">
@@ -113,6 +155,7 @@
         try {
             const response = await fetch(CSV_FILE_PATH);
             if (!response.ok) {
+                // Wenn die Datei nicht gefunden wird, wird der Fehler geworfen
                 throw new Error(`Konnte die Datei nicht laden: Status ${response.status}`);
             }
             const csvText = await response.text();
@@ -136,17 +179,23 @@
             if (!line) continue;
             
             const separator = line.includes(';') ? ';' : ',';
+            // ACHTUNG: Die Preisdaten müssen in der CSV die Spalten 4 (Netto) und 5 (Brutto) enthalten
             const columns = line.split(separator).map(col => col.trim().replace(/"/g, ''));
 
             if (columns.length >= 6) {
-                const priceBrutto = parseFloat(columns[4].replace(',', '.')); 
+                // Konvertiere das Dezimaltrennzeichen von Komma zu Punkt, falls nötig
+                const preisNetto = parseFloat(columns[3].replace(',', '.')); 
+                const preisBrutto = parseFloat(columns[4].replace(',', '.'));
                 
+                // Stelle sicher, dass Brutto-Preis eine Zahl ist
+                if (isNaN(preisBrutto)) continue; 
+
                 allPriceData.push({
                     artikelnummer: columns[0],
                     dienstleistung: columns[1],
                     fahrzeugart: columns[2],
-                    preisNetto: parseFloat(columns[3].replace(',', '.')),
-                    preisBrutto: priceBrutto, 
+                    preisNetto: preisNetto,
+                    preisBrutto: preisBrutto, 
                     bereich: columns[5]
                 });
                 vehicleTypes.add(columns[2]);
@@ -157,26 +206,15 @@
         if (isValidData) {
             statusDiv.className = 'success';
             statusDiv.textContent = `Daten erfolgreich aus "${CSV_FILE_PATH}" geladen. (${allPriceData.length} Einträge)`;
-            populateVehicleFilter(vehicleTypes);
+            // Das Dropdown wird hier nicht mehr automatisch gefüllt, da es fest im HTML steht.
+            vehicleFilter.disabled = false;
+            document.getElementById('promptText').textContent = 'Bitte wählen Sie eine Fahrzeugart, um die Leistungen zu sehen.';
+            clearServiceContainers();
         } else {
             statusDiv.className = 'error';
-            statusDiv.textContent = 'FEHLER: Keine gültigen Daten (mind. 6 Spalten erwartet) in der CSV-Datei gefunden. Bitte CSV prüfen.';
+            statusDiv.textContent = 'FEHLER: Keine gültigen Daten (mind. 6 Spalten erwartet) in der CSV-Datei gefunden oder falsches Format.';
             vehicleFilter.disabled = true;
         }
-    }
-
-    // === Dropdown-Liste mit Fahrzeugarten füllen ===
-    function populateVehicleFilter(vehicleTypes) {
-        vehicleFilter.innerHTML = '<option value="">-- Fahrzeugart auswählen --</option>';
-        vehicleTypes.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type;
-            option.textContent = type;
-            vehicleFilter.appendChild(option);
-        });
-        vehicleFilter.disabled = false;
-        document.getElementById('promptText').textContent = 'Bitte wählen Sie eine Fahrzeugart, um die Leistungen zu sehen.';
-        clearServiceContainers();
     }
 
     // Hilfsfunktion zum Leeren der Container
@@ -199,11 +237,12 @@
 
         document.getElementById('promptText').textContent = '';
 
+        // Filtert nach der ausgewählten Fahrzeugart
         const filteredServices = allPriceData.filter(item => item.fahrzeugart === selectedVehicle);
         
         filteredServices.forEach(item => {
-            const checkboxId = `service-${item.artikelnummer}`;
-            
+            const checkboxId = `service-${item.artikelnummer}-${item.fahrzeugart}`; // Eindeutige ID
+
             const div = document.createElement('div');
             div.className = 'service-item';
 
