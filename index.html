@@ -1,8 +1,26 @@
-    <h1>🛠️ Angebots-Konfigurator</h1>
-    <p>Bitte wählen Sie zuerst Ihre Datei und anschließend die Fahrzeugart, um die verfügbaren Dienstleistungen anzuzeigen.</p>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KFZ-Angebots-Konfigurator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        h1, h2 { color: #333; }
+        #totalPrice { color: #007bff; }
+        label { margin-left: 8px; cursor: pointer; }
+        input[type="checkbox"] { margin-right: 5px; }
+        hr { border: 0; height: 1px; background: #ccc; margin: 20px 0; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
 
-    <input type="file" id="priceFile" accept=".csv, .txt">
-    <div id="statusMessage" style="margin-top: 10px;"></div>
+    <h1>🛠️ Angebots-Konfigurator</h1>
+    <p>Leistungen und Preise werden automatisch aus der Datei **Daten.csv** geladen.</p>
+    
+    <div id="statusMessage" class="success" style="margin-top: 10px;">Daten werden geladen...</div>
 
     <hr>
 
@@ -13,7 +31,7 @@
     
     <div id="servicesContainer" style="margin-top: 30px;">
         <h2>2. Leistungen auswählen:</h2>
-        <p id="promptText">Bitte wählen Sie zuerst eine Fahrzeugart.</p>
+        <p id="promptText">Bitte warten, bis die Daten geladen sind...</p>
         </div>
     
     <hr>
@@ -21,38 +39,36 @@
     <h2 style="margin-top: 20px;">3. Gesamtpreis (Netto):</h2>
     <div id="totalPrice" style="font-size: 1.8em; font-weight: bold; color: #007bff;">€ 0,00</div>
 
-    ```
-
----
-
-### 2. JavaScript-Logik hinzufügen
-
-Fügen Sie diesen Code in den `<script>`-Tag unter dem HTML-Gerüst ein. Dieser Code **ersetzt** die alte `handleFileUpload` und `displayPrices` Funktion.
-
-```javascript
-    document.getElementById('priceFile').addEventListener('change', handleFileUpload);
-    document.getElementById('vehicleFilter').addEventListener('change', filterAndDisplayServices);
+<script>
+    const CSV_FILE_PATH = 'Daten.csv'; // <--- Pfad zur CSV-Datei
     
     const vehicleFilter = document.getElementById('vehicleFilter');
     const servicesContainer = document.getElementById('servicesContainer');
     const totalPriceDisplay = document.getElementById('totalPrice');
     const statusDiv = document.getElementById('statusMessage');
     
-    let allPriceData = []; // Speichert alle Daten aus der CSV-Datei
+    let allPriceData = [];
 
-    // === Step 1: Daten einlesen und Fahrzeugarten füllen ===
-    function handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const csvText = e.target.result;
+    // Event-Listener für den Filter
+    document.getElementById('vehicleFilter').addEventListener('change', filterAndDisplayServices);
+    
+    // === Step 1: Daten automatisch laden (ersetzt den File-Upload) ===
+    async function loadDataFromCSV() {
+        try {
+            const response = await fetch(CSV_FILE_PATH);
+            if (!response.ok) {
+                throw new Error(`Konnte die Datei nicht laden: Status ${response.status}`);
+            }
+            const csvText = await response.text();
             processData(csvText);
-        };
-        reader.readAsText(file);
+        } catch (error) {
+            statusDiv.className = 'error';
+            statusDiv.textContent = `FEHLER: ${error.message}. Ist die Datei "${CSV_FILE_PATH}" im Root-Verzeichnis vorhanden?`;
+            vehicleFilter.disabled = true;
+        }
     }
-
+    
+    // Funktion, die die Daten aus dem CSV-Text verarbeitet
     function processData(csvText) {
         const lines = csvText.split(/\r\n|\n/);
         allPriceData = [];
@@ -67,11 +83,10 @@ Fügen Sie diesen Code in den `<script>`-Tag unter dem HTML-Gerüst ein. Dieser 
             const separator = line.includes(';') ? ';' : ',';
             const columns = line.split(separator).map(col => col.trim().replace(/"/g, ''));
 
-            // Wir erwarten Artikelnummer, Dienstleistung, Fahrzeugart, Preis Netto, Preis Brutto
+            // Wir erwarten Artikelnummer, Dienstleistung, Fahrzeugart, Preis Netto
             if (columns.length >= 4) {
                 const priceNetto = parseFloat(columns[3].replace(',', '.'));
                 
-                // Speichern der bereinigten Daten
                 allPriceData.push({
                     artikelnummer: columns[0],
                     dienstleistung: columns[1],
@@ -85,11 +100,11 @@ Fügen Sie diesen Code in den `<script>`-Tag unter dem HTML-Gerüst ein. Dieser 
 
         if (isValidData) {
             statusDiv.className = 'success';
-            statusDiv.textContent = `Erfolgreich ${allPriceData.length} Preise geladen.`;
+            statusDiv.textContent = `Daten erfolgreich aus "${CSV_FILE_PATH}" geladen.`;
             populateVehicleFilter(vehicleTypes);
         } else {
             statusDiv.className = 'error';
-            statusDiv.textContent = 'Fehler beim Lesen oder keine gültigen Daten gefunden.';
+            statusDiv.textContent = 'FEHLER: Keine gültigen Daten in der CSV-Datei gefunden.';
             vehicleFilter.disabled = true;
         }
     }
@@ -104,17 +119,20 @@ Fügen Sie diesen Code in den `<script>`-Tag unter dem HTML-Gerüst ein. Dieser 
             vehicleFilter.appendChild(option);
         });
         vehicleFilter.disabled = false;
-        servicesContainer.innerHTML = '<p id="promptText">Bitte wählen Sie zuerst eine Fahrzeugart.</p>';
+        servicesContainer.querySelector('#promptText').textContent = 'Bitte wählen Sie eine Fahrzeugart, um die Leistungen zu sehen.';
     }
 
     // === Step 3: Filtern und Checkboxen anzeigen ===
     function filterAndDisplayServices() {
         const selectedVehicle = vehicleFilter.value;
-        servicesContainer.innerHTML = '';
+        
+        // Löschen aller Elemente, außer der Überschrift (falls vorhanden)
+        const currentElements = servicesContainer.querySelectorAll(':not(h2)');
+        currentElements.forEach(el => el.remove());
         totalPriceDisplay.textContent = '€ 0,00'; // Gesamtpreis zurücksetzen
 
         if (!selectedVehicle) {
-            servicesContainer.innerHTML = '<p id="promptText">Bitte wählen Sie zuerst eine Fahrzeugart.</p>';
+            servicesContainer.innerHTML += '<p id="promptText">Bitte wählen Sie eine Fahrzeugart, um die Leistungen zu sehen.</p>';
             return;
         }
 
@@ -123,36 +141,28 @@ Fügen Sie diesen Code in den `<script>`-Tag unter dem HTML-Gerüst ein. Dieser 
         filteredServices.forEach(item => {
             const checkboxId = `service-${item.artikelnummer}`;
             
-            // Container für Checkbox und Label
             const div = document.createElement('div');
             div.style.marginBottom = '10px';
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.id = checkboxId;
-            checkbox.value = item.preisNetto; // Den Preis direkt als Wert speichern
+            checkbox.value = item.preisNetto;
             checkbox.addEventListener('change', calculateTotal);
             
             const label = document.createElement('label');
             label.htmlFor = checkboxId;
-            // Dienstleistung und Preis im Label anzeigen
             label.textContent = `${item.dienstleistung} (${formatPrice(item.preisNetto)} Netto)`;
 
             div.appendChild(checkbox);
             div.appendChild(label);
             servicesContainer.appendChild(div);
         });
-        
-        // Stellen Sie sicher, dass die Überschrift wieder angezeigt wird, wenn Dienste geladen sind
-        const h2 = document.createElement('h2');
-        h2.textContent = '2. Leistungen auswählen:';
-        servicesContainer.insertBefore(h2, servicesContainer.firstChild);
     }
 
     // === Step 4: Gesamtpreis berechnen ===
     function calculateTotal() {
         let total = 0;
-        // Alle ausgewählten Checkboxen durchlaufen
         const selectedCheckboxes = servicesContainer.querySelectorAll('input[type="checkbox"]:checked');
         
         selectedCheckboxes.forEach(checkbox => {
@@ -164,6 +174,11 @@ Fügen Sie diesen Code in den `<script>`-Tag unter dem HTML-Gerüst ein. Dieser 
     
     // Hilfsfunktion zur Preisformatierung
     function formatPrice(amount) {
-        // Stellt sicher, dass das Komma als Dezimaltrennzeichen verwendet wird
         return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
     }
+
+    // Startet den Ladevorgang, wenn die Seite fertig geladen ist
+    loadDataFromCSV();
+</script>
+</body>
+</html>
