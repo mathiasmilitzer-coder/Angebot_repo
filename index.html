@@ -23,7 +23,7 @@
 
     /* Checkboxen 1.5x so groß */
     input[type="checkbox"] { 
-        transform: scale(1.5);
+        transform: scale(1.5); /* Reduziert von 2 auf 1.5 */
         margin-right: 5px; 
         vertical-align: middle;
     }
@@ -32,13 +32,14 @@
     .success { color: green; font-weight: bold; }
     .error { color: red; font-weight: bold; }
 
-    /* Desktop-Layout: Innen- und Außenbereich nebeneinander */
+    /* Flex-Container für Innen- und Außenbereich */
     #servicesFlexContainer {
         display: flex;
         justify-content: space-between;
         gap: 40px;
         margin-top: 20px;
     }
+    /* Style für die einzelnen Spalten */
     .service-column {
         flex: 1;
         padding: 10px;
@@ -52,32 +53,5 @@
     }
     .service-item {
         margin-bottom: 5px; 
-    }
-    
-    /* ========================================================= */
-    /* NEU: MEDIA QUERY FÜR HANDY (MAXIMALE BREITE 600px) */
-    /* ========================================================= */
-    @media (max-width: 600px) {
-        
-        /* 1. Hauptcontainer auf Spalten-Layout umstellen */
-        #servicesFlexContainer {
-            flex-direction: column; /* Spalten werden untereinander angezeigt */
-            gap: 20px; /* Reduzierter Abstand */
-        }
-        
-        /* 2. Skalierung des Dropdowns und Checkboxen reduzieren */
-        #vehicleFilter {
-            transform: scale(1.2); /* Etwas kleiner auf Handy */
-            margin: 10px 0 10px 10px;
-        }
-        
-        input[type="checkbox"] { 
-            transform: scale(1.2); /* Auch die Checkboxen etwas kleiner */
-        }
-        
-        /* 3. Textgröße leicht anpassen (optional) */
-        body {
-            padding: 10px;
-        }
     }
 </style>
