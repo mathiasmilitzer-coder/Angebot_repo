@@ -8,15 +8,33 @@
         body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
         h1, h2 { color: #333; }
         #totalPrice { color: #007bff; }
-        label { margin-left: 15px; cursor: pointer; display: inline-block; vertical-align: top; } /* Abstand für skalierte Checkbox */
         
-        /* NEU: Checkboxen doppelt so groß */
-        input[type="checkbox"] { 
-            transform: scale(2); /* Skaliert die Checkbox auf die doppelte Größe */
-            margin-right: 5px; 
-            vertical-align: middle; /* Stellt die Checkbox mittig zum Text */
+        /* Allgemeine Anpassung der Checkbox-Label-Ausrichtung */
+        label { margin-left: 15px; cursor: pointer; display: inline-block; vertical-align: middle; } 
+        
+        /* NEU: Schrift der Leistungen doppelt so groß */
+        #servicesContainer label {
+            font-size: 2em;
+            line-height: 1.5em; /* Zur besseren Trennung der Zeilen */
         }
-        hr { border: 0; height: 1px; background: #ccc; margin: 20px 0; }
+        
+        /* NEU: Fahrzeugart Auswahlfeld doppelt so groß */
+        #vehicleFilter {
+            transform: scale(2); /* Skaliert das Element */
+            transform-origin: left; /* Sorgt dafür, dass es von links aus skaliert wird */
+            margin-left: 20px;
+            margin-top: 10px;
+            padding: 5px;
+        }
+
+        /* Checkboxen doppelt so groß (aus dem letzten Schritt) */
+        input[type="checkbox"] { 
+            transform: scale(2);
+            margin-right: 5px; 
+            vertical-align: middle;
+        }
+        
+        hr { border: 0; height: 1px; background: #ccc; margin: 40px 0; }
         .success { color: green; font-weight: bold; }
         .error { color: red; font-weight: bold; }
     </style>
@@ -35,17 +53,17 @@
         <option value="">-- Fahrzeugart auswählen --</option>
     </select>
     
-    <div id="servicesContainer" style="margin-top: 30px;">
-        <h2>2. Leistungen auswählen:</h2>
+    <div id="servicesContainer" style="margin-top: 60px;"> <h2>2. Leistungen auswählen:</h2>
         <p id="promptText">Bitte warten, bis die Daten geladen sind...</p>
     </div>
     
     <hr>
 
-    <h2 style="margin-top: 20px;">3. Gesamtpreis (Brutto):</h2> <div id="totalPrice" style="font-size: 1.8em; font-weight: bold; color: #007bff;">€ 0,00</div>
+    <h2 style="margin-top: 20px;">3. Gesamtpreis (Brutto):</h2>
+    <div id="totalPrice" style="font-size: 1.8em; font-weight: bold; color: #007bff;">€ 0,00</div>
 
 <script>
-    const CSV_FILE_PATH = 'Daten.csv'; // Pfad zur CSV-Datei
+    const CSV_FILE_PATH = 'Daten.csv';
     
     const vehicleFilter = document.getElementById('vehicleFilter');
     const servicesContainer = document.getElementById('servicesContainer');
@@ -79,7 +97,6 @@
         const vehicleTypes = new Set();
         let isValidData = false;
 
-        // Die erste Zeile (Überschriften) wird übersprungen (i=1)
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i].trim();
             if (!line) continue;
@@ -87,16 +104,14 @@
             const separator = line.includes(';') ? ';' : ',';
             const columns = line.split(separator).map(col => col.trim().replace(/"/g, ''));
 
-            // Wir erwarten: Artikelnummer (0), Dienstleistung (1), Fahrzeugart (2), Preis Netto (3), Preis Brutto (4)
-            if (columns.length >= 5) { // Mindestens 5 Spalten benötigt
-                // NEU: Verwenden von columns[4] für den Bruttopreis
+            if (columns.length >= 5) {
                 const priceBrutto = parseFloat(columns[4].replace(',', '.')); 
                 
                 allPriceData.push({
                     artikelnummer: columns[0],
                     dienstleistung: columns[1],
                     fahrzeugart: columns[2],
-                    preisBrutto: priceBrutto // Speichern des Bruttopreises
+                    preisBrutto: priceBrutto
                 });
                 vehicleTypes.add(columns[2]);
                 isValidData = true;
@@ -146,17 +161,16 @@
             const checkboxId = `service-${item.artikelnummer}`;
             
             const div = document.createElement('div');
-            div.style.marginBottom = '15px'; /* Mehr Abstand wegen der Skalierung */
+            div.style.marginBottom = '20px'; /* Mehr Abstand wegen der Skalierung */
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.id = checkboxId;
-            checkbox.value = item.preisBrutto; // NEU: Bruttopreis als Wert
+            checkbox.value = item.preisBrutto;
             checkbox.addEventListener('change', calculateTotal);
             
             const label = document.createElement('label');
             label.htmlFor = checkboxId;
-            // NEU: "Netto" auf "Brutto" geändert
             label.textContent = `${item.dienstleistung} (${formatPrice(item.preisBrutto)} Brutto)`;
 
             div.appendChild(checkbox);
@@ -165,7 +179,7 @@
         });
     }
 
-    // === Gesamtpreis berechnen (nutzt den Bruttopreis-Wert) ===
+    // === Gesamtpreis berechnen ===
     function calculateTotal() {
         let total = 0;
         const selectedCheckboxes = servicesContainer.querySelectorAll('input[type="checkbox"]:checked');
@@ -182,7 +196,6 @@
         return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
     }
 
-    // Startet den Ladevorgang
     loadDataFromCSV();
 </script>
 </body>
