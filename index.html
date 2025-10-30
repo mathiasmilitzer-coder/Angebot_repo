@@ -61,20 +61,21 @@
             margin-bottom: 5px; 
         }
 
-        /* NEUE STYLES FÜR DAS HEADER-BILD (ZENTRIERUNG) */
+        /* NEUE STYLES FÜR DAS HEADER-BILD (BREITENANPASSUNG) */
         #headerImageContainer {
-            text-align: center; /* Zentriert inline-Elemente wie das Bild */
-            margin: 20px 0; /* Abstand oben und unten */
+            text-align: center; /* Zentriert das Bild */
+            margin: 20px 0;
+            padding: 0 10px; 
         }
 
         #headerImage {
-            max-width: 100%; /* Stellt sicher, dass das Bild auf Handys nicht über den Bildschirm hinausragt */
-            height: auto;
-            width: 300px; /* Beispielbreite, passen Sie dies nach Bedarf an */
-            display: block; /* Ermöglicht die korrekte Zentrierung mit margin: auto */
-            margin: 0 auto;
-            border: 2px solid #ccc; /* Optional: fügt einen Rahmen hinzu */
-            border-radius: 5px; /* Optional: abgerundete Ecken */
+            width: 100%; /* Passt sich der vollen Container-Breite an */
+            max-width: 500px; /* Optional: Maximale Breite für große Bildschirme (anpassbar) */
+            height: auto; /* Behält das Seitenverhältnis bei */
+            display: block; 
+            margin: 0 auto; /* Zentriert das Bild innerhalb des Containers */
+            border: 2px solid #ccc; 
+            border-radius: 5px;
         }
         /* ENDE NEUE STYLES */
 
@@ -273,7 +274,8 @@
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.id = checkboxId;
-            checkbox.value = item.preisBrutto;
+            // ACHTUNG: Hier wird der Brutto-Preis als Wert der Checkbox gespeichert
+            checkbox.value = item.preisBrutto; 
             checkbox.addEventListener('change', calculateTotal);
             
             const label = document.createElement('label');
