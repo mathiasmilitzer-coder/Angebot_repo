@@ -61,6 +61,23 @@
             margin-bottom: 5px; 
         }
 
+        /* NEUE STYLES FÜR DAS HEADER-BILD (ZENTRIERUNG) */
+        #headerImageContainer {
+            text-align: center; /* Zentriert inline-Elemente wie das Bild */
+            margin: 20px 0; /* Abstand oben und unten */
+        }
+
+        #headerImage {
+            max-width: 100%; /* Stellt sicher, dass das Bild auf Handys nicht über den Bildschirm hinausragt */
+            height: auto;
+            width: 300px; /* Beispielbreite, passen Sie dies nach Bedarf an */
+            display: block; /* Ermöglicht die korrekte Zentrierung mit margin: auto */
+            margin: 0 auto;
+            border: 2px solid #ccc; /* Optional: fügt einen Rahmen hinzu */
+            border-radius: 5px; /* Optional: abgerundete Ecken */
+        }
+        /* ENDE NEUE STYLES */
+
         /* ************************************** */
         /* RESPONSIVE DESIGN FÜR HANDYS (Media Query) */
         /* ************************************** */
@@ -102,6 +119,10 @@
     
     <div id="statusMessage" class="success" style="margin-top: 10px;">Daten werden geladen...</div>
 
+    <div id="headerImageContainer">
+        <img id="headerImage" src="IMG_9066.jpeg" alt="Firmenlogo/Headerbild">
+    </div>
+    
     <hr>
 
     <h2>1. Fahrzeugart wählen:</h2>
@@ -285,6 +306,7 @@
     
     // Hilfsfunktion zur Preisformatierung
     function formatPrice(amount) {
+        // Formatiert auf zwei Dezimalstellen
         return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
     }
 
