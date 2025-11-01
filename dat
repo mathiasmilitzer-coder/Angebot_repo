@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV-Daten-Editor und Export</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        h1 {
+            color: #007BFF;
+            border-bottom: 2px solid #007BFF;
+            padding-bottom: 10px;
+        }
+        #controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+            cursor: pointer; /* Indiziert Bearbeitbarkeit */
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        /* Stil für bearbeitetes Feld */
+        .editable {
+            padding: 0; 
+        }
+        .edit-input {
+            width: 90%;
+            padding: 5px;
+            border: 1px solid #007BFF;
+            box-sizing: border-box;
+        }
+        .note {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>CSV-Daten-Editor</h1>
+    <p>Klicken Sie auf eine Zelle in der Tabelle (außer "Marktpreisspanne" und "Kategorie"), um den Wert zu bearbeiten.</p>
+
+    <div id="controls">
+        <button onclick="exportCSV()">Geänderte Daten als CSV exportieren 💾</button>
+        <div class="note" style="padding: 5px 10px; margin:0;">
+            **Tipp:** Nur die Spalten **"Code"**, **"Dienstleistung"**, **"Fahrzeugart"**, **"Ihr Preis Brutto"** und **"Marktpreis Brutto"** sind direkt bearbeitbar.
+        </div>
+    </div>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th data-field="code">Code</th>
+                <th data-field="service">Dienstleistung</th>
+                <th data-field="vehicle">Fahrzeugart</th>
+                <th data-field="your_price">Ihr Preis Brutto (€)</th>
+                <th data-field="market_price">Marktpreis Brutto (€)</th>
+                <th data-field="category">Kategorie</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+
+    <script>
+        // Ihre Daten (wie in der index.csv / vorherigen HTML-Dateien)
+        const csvText = `
+B-INN;Fahrzeuginnereinigung;BUS;83,99;99,95;Innen
+B-LA;Lackaufbereitung;BUS;168,03;200,06;Aussen
+B-FA;Fahrzeugaufbereitung;BUS;250,00;297,50;Aussen
+B-GER;Geruchsentfernung;BUS;83,99;99,95;Innen
+B-HIM;Himmel-Reinigung;BUS;58,78;69,95;Innen
+B-HAAR;Hundehaarentfernung;BUS;83,99;99,95;Innen
+B-LED;Lederpflege;BUS;67,18;79,94;Innen
+B-NANO-L;Nano-Lack-Versiegelung;BUS;545,38;649,00;Aussen
+B-NANO-S;Nano-Scheiben-Versiegelung;BUS;100,84;120,00;Aussen
+B-PV;Politur / Versiegelung;BUS;117,65;140,00;Aussen
+B-POL;Polsterreinigung;BUS;83,99;99,95;Innen
+B-TEP;Teppichaufbereitung;BUS;75,50;89,85;Innen
+DU-LA;Lackaufbereitung;BUS;377,31;449,01;Aussen
+DU-PV;Politur / Versiegelung;BUS;210,08;250,00;Aussen
+DU-FA;Fahrzeugaufbereitung;BUS;270,00;321,30;Aussen
+M-INN;Bus-Innenreinigung;BUS;235,00;279,65;Innen
+S-CER;Ceramic Versiegelung;BUS;1638,66;1950,00;Aussen
+D-FA;Fahrzeugaufbereitung;VAN;230,00;273,70;Aussen
+K-CER;Ceramic Versiegelung;KOMBI;546,22;650,00;Aussen
+K-INN;Fahrzeuginnereinigung;KOMBI;58,78;69,95;Innen
+K-GER;Geruchsentfernung;KOMBI;67,18;79,94;Innen
+K-HIM;Himmel-Reinigung;KOMBI;58,78;69,95;Innen
+K-HAAR;Hundehaarentfernung;KOMBI;58,78;69,95;Innen
+K-LA;Lackaufbereitung;KOMBI;142,82;170,06;Aussen
+K-LED;Lederpflege;KOMBI;58,78;69,95;Innen
+K-NANO-L;Nano-Lack-Versiegelung;KOMBI;293,82;349,65;Aussen
+K-NANO-S;Nano-Scheiben-Versiegelung;KOMBI;83,99;99,95;Aussen
+K-PV;Politur / Versiegelung;KOMBI;67,18;79,94;Aussen
+K-POL;Polsterreinigung;KOMBI;58,78;69,95;Innen
+K-TEP;Teppichaufbereitung;KOMBI;75,58;90,04;Innen
+L-CER;Ceramic Versiegelung;LIMO;630,25;750,00;Aussen
+L-INN;Fahrzeuginnereinigung;LIMO;58,78;69,95;Innen
+L-GER;Geruchsentfernung;LIMO;67,18;79,94;Innen
+L-HIM;Himmel-Reinigung;LIMO;58,78;69,95;Innen
+L-HAAR;Hundehaarentfernung;LIMO;58,78;69,95;Innen
+L-LA;Lackaufbereitung;LIMO;142,82;170,06;Aussen
+L-LED;Lederpflege;LIMO;58,78;69,95;Innen
+L-NANO-L;Nano-Lack-Versiegelung;LIMO;293,28;349,00;Aussen
+L-NANO-S;Nano-Scheiben-Versiegelung;LIMO;83,99;99,95;Aussen
+L-PV;Politur / Versiegelung;LIMO;67,18;79,94;Aussen
+L-POL;Polsterreinigung;LIMO;58,78;69,95;Innen
+L-TEP;Teppichaufbereitung;LIMO;75,50;89,85;Innen
+P-CER;Ceramic Versiegelung;PKW;462,18;550,00;Aussen
+P-FA;Fahrzeugaufbereitung;PKW;140,00;166,60;Aussen
+P-INN;Fahrzeuginnereinigung;PKW;58,78;69,95;Innen
+P-GER;Geruchsentfernung;PKW;50,37;59,94;Innen
+P-HIM;Himmel-Reinigung;PKW;58,78;69,95;Innen
+P-HAAR;Hundehaarentfernung;PKW;58,78;69,95;Innen
+P-LA;Lackaufbereitung;PKW;126,05;150,00;Aussen
+P-LED;Lederpflege;PKW;58,77;69,94;Innen
+P-NANO-L;Nano-Lack-Versiegelung;PKW;251,26;299,00;Aussen
+P-NANO-S;Nano-Scheiben-Versiegelung;PKW;83,99;99,95;Aussen
+P-PV;Politur / Versiegelung;PKW;58,78;69,95;Aussen
+P-POL;Polsterreinigung;PKW;58,77;69,94;Innen
+P-TEP;Teppichaufbereitung;PKW;50,38;59,95;Innen
+S-CER;Ceramic Versiegelung;SUV;798,32;950,00;Aussen
+S-FA;Fahrzeugaufbereitung;SUV;150,00;178,50;Aussen
+S-INN;Fahrzeuginnereinigung;SUV;67,18;79,94;Innen
+S-GER;Geruchsentfernung;SUV;67,18;79,94;Innen
+S-HIM;Himmel-Reinigung;SUV;58,78;69,95;Innen
+S-HAAR;Hundehaarentfernung;SUV;67,18;79,94;Innen
+S-LA;Lackaufbereitung;SUV;151,22;180,00;Aussen
+S-LED;Lederpflege;SUV;67,18;79,94;Innen
+S-NANO-L;Nano-Lack-Versiegelung;SUV;420,16;500,00;Aussen
+S-NANO-S;Nano-Scheiben-Versiegelung;SUV;83,99;99,95;Aussen
+S-PV;Politur / Versiegelung;SUV;117,65;140,00;Aussen
+S-POL;Polsterreinigung;SUV;67,18;79,94;Innen
+S-TEP;Teppichaufbereitung;SUV;75,59;90,05;Innen
+T-PV;Politur / Versiegelung;TRANSPORTER;180,00;214,20;Aussen
+X-WAST;Fahrzeugwäsche Transporter;TRANSPORTER;60,00;71,40;Aussen
+W-CELZ;Ceramic Langzeitversiegelung;WOMO;1764,71;2100,01;Aussen
+W-CER;Ceramic Versiegelung;WOMO;1764,71;2100,01;Aussen
+W-INN;Fahrzeuginnenreinigung;WOMO;168,03;200,06;Innen
+W-NANO-L;Nano-Lack-Versiegelung;WOMO;1176,47;1400,01;Aussen
+W-NANO-S;Nano-Scheiben-Versiegelung;WOMO;126,05;150,00;Aussen
+W-PV;Politur / Versiegelung;WOMO;420,17;500,00;Aussen
+W-W;Wohnmobilwäsche;WOMO;210,08;250,00;Aussen
+X-CABV;Cabrioverdeck Versiegelung;CABRIO;32,77;39,01;Aussen
+X-CABR;Cabrioverdeck-Reinigung;CABRIO;50,42;60,00;Aussen
+X-AUFW-BUS;Arbeiten nach Aufwand;BUS;69,00;82,11;Innen
+X-AUFW-CABRIO;Arbeiten nach Aufwand;CABRIO;69,00;82,11;Innen
+X-AUFW-KOMBI;Arbeiten nach Aufwand;KOMBI;69,00;82,11;Innen
+X-AUFW-LIMO;Arbeiten nach Aufwand;LIMO;69,00;82,11;Innen
+X-AUFW-PKW;Arbeiten nach Aufwand;PKW;69,00;82,11;Innen
+X-AUFW-SUV;Arbeiten nach Aufwand;SUV;69,00;82,11;Innen
+X-AUFW-TRANSPORTER;Arbeiten nach Aufwand;TRANSPORTER;69,00;82,11;Innen
+X-AUFW-VAN;Arbeiten nach Aufwand;VAN;69,00;82,11;Innen
+X-AUFW-WOMO;Arbeiten nach Aufwand;WOMO;69,00;82,11;Innen
+X-DELL-BUS;Dellenbeseitigung;BUS;75,63;90,01;Aussen
+X-DELL-CABRIO;Dellenbeseitigung;CABRIO;75,63;90,01;Aussen
+X-DELL-KOMBI;Dellenbeseitigung;KOMBI;75,63;90,01;Aussen
+X-DELL-LIMO;Dellenbeseitigung;LIMO;75,63;90,01;Aussen
+X-DELL-PKW;Dellenbeseitigung;PKW;75,63;90,01;Aussen
+X-DELL-SUV;Dellenbeseitigung;SUV;75,63;90,01;Aussen
+X-DELL-TRANSPORTER;Dellenbeseitigung;TRANSPORTER;75,63;90,01;Aussen
+X-DELL-VAN;Dellenbeseitigung;VAN;75,63;90,01;Aussen
+X-DELL-WOMO;Dellenbeseitigung;WOMO;75,63;90,01;Aussen
+X-DWER-BUS;Demontage Werbebeschriftung;BUS;49,58;59,00;Aussen
+X-DWER-CABRIO;Demontage Werbebeschriftung;CABRIO;49,58;59,00;Aussen
+X-DWER-KOMBI;Demontage Werbebeschriftung;KOMBI;49,58;59,00;Aussen
+X-DWER-LIMO;Demontage Werbebeschriftung;LIMO;49,58;59,00;Aussen
+X-DWER-PKW;Demontage Werbebeschriftung;PKW;49,58;59,00;Aussen
+X-DWER-SUV;Demontage Werbebeschriftung;SUV;49,58;59,00;Aussen
+X-DWER-TRANSPORTER;Demontage Werbebeschriftung;TRANSPORTER;49,58;59,00;Aussen
+X-DWER-VAN;Demontage Werbebeschriftung;VAN;49,58;59,00;Aussen
+X-DWER-WOMO;Demontage Werbebeschriftung;WOMO;49,58;59,00;Aussen
+X-ENE-BUS;Energiekosten Pauschale;BUS;16,81;20,01;Innen
+X-ENE-CABRIO;Energiekosten Pauschale;CABRIO;16,81;20,01;Innen
+X-ENE-KOMBI;Energiekosten Pauschale;KOMBI;16,81;20,01;Innen
+X-ENE-LIMO;Energiekosten Pauschale;LIMO;16,81;20,01;Innen
+X-ENE-PKW;Energiekosten Pauschale;PKW;16,81;20,01;Innen
+X-ENE-SUV;Energiekosten Pauschale;SUV;16,81;20,01;Innen
+X-ENE-TRANSPORTER;Energiekosten Pauschale;TRANSPORTER;16,81;20,01;Innen
+X-ENE-VAN;Energiekosten Pauschale;VAN;16,81;20,01;Innen
+X-ENE-WOMO;Energiekosten Pauschale;WOMO;16,81;20,01;Innen
+X-WAS-BUS;Fahrzeugwäsche Spezial;BUS;45,00;53,55;Aussen
+X-WAS-CABRIO;Fahrzeugwäsche Spezial;CABRIO;45,00;53,55;Aussen
+X-WAS-KOMBI;Fahrzeugwäsche Spezial;KOMBI;45,00;53,55;Aussen
+X-WAS-LIMO;Fahrzeugwäsche Spezial;LIMO;45,00;53,55;Aussen
+X-WAS-PKW;Fahrzeugwäsche Spezial;PKW;45,00;53,55;Aussen
+X-WAS-SUV;Fahrzeugwäsche Spezial;SUV;45,00;53,55;Aussen
+X-WAS-TRANSPORTER;Fahrzeugwäsche Spezial;TRANSPORTER;45,00;53,55;Aussen
+X-WAS-VAN;Fahrzeugwäsche Spezial;VAN;45,00;53,55;Aussen
+X-WAS-WOMO;Fahrzeugwäsche Spezial;WOMO;45,00;53,55;Aussen
+X-WASN-BUS;Fahrzeugwäsche normal;BUS;33,61;40,04;Aussen
+X-WASN-CABRIO;Fahrzeugwäsche normal;CABRIO;33,61;40,04;Aussen
+X-WASN-KOMBI;Fahrzeugwäsche normal;KOMBI;33,61;40,04;Aussen
+X-WASN-LIMO;Fahrzeugwäsche normal;LIMO;33,61;40,04;Aussen
+X-WASN-PKW;Fahrzeugwäsche normal;PKW;33,61;40,04;Aussen
+X-WASN-SUV;Fahrzeugwäsche normal;SUV;33,61;40,04;Aussen
+X-WASN-TRANSPORTER;Fahrzeugwäsche normal;TRANSPORTER;33,61;40,04;Aussen
+X-WASN-VAN;Fahrzeugwäsche normal;VAN;33,61;40,04;Aussen
+X-WASN-WOMO;Fahrzeugwäsche normal;WOMO;33,61;40,04;Aussen
+X-HOL-BUS;Hol- und Bring-Service;BUS;25,00;29,75;Innen
+X-HOL-CABRIO;Hol- und Bring-Service;CABRIO;25,00;29,75;Innen
+X-HOL-KOMBI;Hol- und Bring-Service;KOMBI;25,00;29,75;Innen
+X-HOL-LIMO;Hol- und Bring-Service;LIMO;25,00;29,75;Innen
+X-HOL-PKW;Hol- und Bring-Service;PKW;25,00;29,75;Innen
+X-HOL-SUV;Hol- und Bring-Service;SUV;25,00;29,75;Innen
+X-HOL-TRANSPORTER;Hol- und Bring-Service;TRANSPORTER;25,00;29,75;Innen
+X-HOL-VAN;Hol- und Bring-Service;VAN;25,00;29,75;Innen
+X-HOL-WOMO;Hol- und Bring-Service;WOMO;25,00;29,75;Innen
+X-KLI-BUS;Klimafilter wechsel;BUS;57,98;69,00;Innen
+X-KLI-CABRIO;Klimafilter wechsel;CABRIO;57,98;69,00;Innen
+X-KLI-KOMBI;Klimafilter wechsel;KOMBI;57,98;69,00;Innen
+X-KLI-LIMO;Klimafilter wechsel;LIMO;57,98;69,00;Innen
+X-KLI-PKW;Klimafilter wechsel;PKW;57,98;69,00;Innen
+X-KLI-SUV;Klimafilter wechsel;SUV;57,98;69,00;Innen
+X-KLI-TRANSPORTER;Klimafilter wechsel;TRANSPORTER;57,98;69,00;Innen
+X-KLI-VAN;Klimafilter wechsel;VAN;57,98;69,00;Innen
+X-KLI-WOMO;Klimafilter wechsel;WOMO;57,98;69,00;Innen
+X-MOW-BUS;Montage Werbebeschriftung;BUS;39,95;47,54;Aussen
+X-MOW-CABRIO;Montage Werbebeschriftung;CABRIO;39,95;47,54;Aussen
+X-MOW-KOMBI;Montage Werbebeschriftung;KOMBI;39,95;47,54;Aussen
+X-MOW-LIMO;Montage Werbebeschriftung;LIMO;39,95;47,54;Aussen
+X-MOW-PKW;Montage Werbebeschriftung;PKW;39,95;47,54;Aussen
+X-MOW-SUV;Montage Werbebeschriftung;SUV;39,95;47,54;Aussen
+X-MOW-TRANSPORTER;Montage Werbebeschriftung;TRANSPORTER;39,95;47,54;Aussen
+X-MOW-VAN;Montage Werbebeschriftung;VAN;39,95;47,54;Aussen
+X-MOW-WOMO;Montage Werbebeschriftung;WOMO;39,95;47,54;Aussen
+X-MOT-BUS;Motorwäsche;BUS;58,82;70,00;Aussen
+X-MOT-CABRIO;Motorwäsche;CABRIO;58,82;70,00;Aussen
+X-MOT-KOMBI;Motorwäsche;KOMBI;58,82;70,00;Aussen
+X-MOT-LIMO;Motorwäsche;LIMO;58,82;70,00;Aussen
+X-MOT-PKW;Motorwäsche;PKW;58,82;70,00;Aussen
+X-MOT-SUV;Motorwäsche;SUV;58,82;70,00;Aussen
+X-MOT-TRANSPORTER;Motorwäsche;TRANSPORTER;58,82;70,00;Aussen
+X-MOT-VAN;Motorwäsche;VAN;58,82;70,00;Aussen
+X-MOT-WOMO;Motorwäsche;WOMO;58,82;70,00;Aussen
+X-OZO-BUS;OZON Behandlung;BUS;58,77;69,94;Innen
+X-OZO-CABRIO;OZON Behandlung;CABRIO;58,77;69,94;Innen
+X-OZO-KOMBI;OZON Behandlung;KOMBI;58,77;69,94;Innen
+X-OZO-LIMO;OZON Behandlung;LIMO;58,77;69,94;Innen
+X-OZO-PKW;OZON Behandlung;PKW;58,77;69,94;Innen
+X-OZO-SUV;OZON Behandlung;SUV;58,77;69,94;Innen
+X-OZO-TRANSPORTER;OZON Behandlung;TRANSPORTER;58,77;69,94;Innen
+X-OZO-VAN;OZON Behandlung;VAN;58,77;69,94;Innen
+X-OZO-WOMO;OZON Behandlung;WOMO;58,77;69,94;Innen
+X-SWA-BUS;Scheinwerfer Aufbereitung;BUS;126,05;150,00;Aussen
+X-SWA-CABRIO;Scheinwerfer Aufbereitung;CABRIO;126,05;150,00;Aussen
+X-SWA-KOMBI;Scheinwerfer Aufbereitung;KOMBI;126,05;150,00;Aussen
+X-SWA-LIMO;Scheinwerfer Aufbereitung;LIMO;126,05;150,000;Aussen
+X-SWA-PKW;Scheinwerfer Aufbereitung;PKW;126,05;150,00;Aussen
+X-SWA-SUV;Scheinwerfer Aufbereitung;SUV;126,05;150,00;Aussen
+X-SWA-TRANSPORTER;Scheinwerfer Aufbereitung;TRANSPORTER;126,05;150,00;Aussen
+X-SWA-VAN;Scheinwerfer Aufbereitung;VAN;126,05;150,00;Aussen
+X-SWA-WOMO;Scheinwerfer Aufbereitung;WOMO;126,05;150,00;Aussen
+`;
+        
+        // Reihenfolge der Spalten im Daten-Array
+        const dataFields = ['code', 'service', 'vehicle', 'your_price', 'market_price', 'category'];
+        // Spalten, die bearbeitbar sein sollen (Index-basiert)
+        const editableIndices = [0, 1, 2, 3, 4, 5]; // Alle Spalten außer 'category' (Index 5 ist bearbeitbar)
+
+        let data = [];
+        const tableBody = document.querySelector('#dataTable tbody');
+
+        // 1. Daten parsen und in Array von Objekten umwandeln
+        function parseCSV(csvString) {
+            const lines = csvString.trim().split('\n');
+            return lines.map(line => {
+                const parts = line.split(';');
+                let obj = {};
+                dataFields.forEach((field, index) => {
+                    obj[field] = parts[index] ? parts[index].trim() : '';
+                });
+                return obj;
+            });
+        }
+
+        // 2. Daten in die bearbeitbare Tabelle rendern
+        function renderTable() {
+            tableBody.innerHTML = '';
+            data.forEach((item, rowIndex) => {
+                const row = tableBody.insertRow();
+                dataFields.forEach((field, colIndex) => {
+                    const cell = row.insertCell();
+                    cell.textContent = item[field];
+                    cell.dataset.rowIndex = rowIndex;
+                    cell.dataset.field = field;
+
+                    // Die Spalte 'Kategorie' (Index 5) wird als nicht direkt bearbeitbar behandelt
+                    if (editableIndices.includes(colIndex)) {
+                         cell.onclick = (event) => makeEditable(event.target, rowIndex, field);
+                    }
+                });
+            });
+        }
+
+        // 3. Zelle klickbar und bearbeitbar machen
+        let editingCell = null;
+
+        function makeEditable(cell, rowIndex, field) {
+            // Verhindern, dass mehrere Zellen gleichzeitig bearbeitet werden
+            if (editingCell === cell) return;
+            if (editingCell) {
+                // Den Bearbeitungsmodus der vorherigen Zelle beenden
+                exitEditMode(editingCell);
+            }
+
+            editingCell = cell;
+            const originalValue = cell.textContent;
+            cell.classList.add('editable');
+            cell.innerHTML = ''; 
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = originalValue;
+            input.className = 'edit-input';
+            
+            // Fokus setzen
+            setTimeout(() => input.focus(), 0);
+
+            // Speichern beim Drücken von Enter
+            input.onkeypress = (e) => {
+                if (e.key === 'Enter') {
+                    saveEdit(input, rowIndex, field);
+                }
+            };
+            
+            // Speichern beim Verlassen des Fokus (Klick außerhalb der Zelle)
+            input.onblur = () => {
+                saveEdit(input, rowIndex, field);
+            };
+
+            cell.appendChild(input);
+        }
+
+        // 4. Änderungen speichern und Bearbeitungsmodus beenden
+        function saveEdit(inputElement, rowIndex, field) {
+            if (!editingCell) return;
+
+            const newValue = inputElement.value.trim();
+            
+            // 1. Datenobjekt im Speicher aktualisieren
+            data[rowIndex][field] = newValue;
+            
+            // 2. Zelle visuell aktualisieren und Bearbeitungsmodus beenden
+            editingCell.textContent = newValue;
+            editingCell.classList.remove('editable');
+            editingCell = null;
+        }
+
+        // Hilfsfunktion zum Beenden des Bearbeitungsmodus
+        function exitEditMode(cell) {
+             const input = cell.querySelector('.edit-input');
+             if (input) {
+                 // Führt saveEdit aus, um den aktuellen Wert zu sichern
+                 saveEdit(input, cell.dataset.rowIndex, cell.dataset.field);
+             }
+        }
+
+        // 5. Export der bearbeiteten Daten als neue CSV-Datei
+        function exportCSV() {
+            // Kopfzeile erstellen
+            const header = dataFields.map(field => {
+                // Liest den Header-Text aus der Tabelle für eine saubere Ausgabe
+                const th = document.querySelector(`th[data-field="${field}"]`);
+                return th ? th.textContent.replace(' (€)', '').trim() : field;
+            }).join(';');
+
+            // Datenzeilen erstellen
+            const csvRows = data.map(row => {
+                // Map die Werte aus dem Datenobjekt in die definierte Reihenfolge der Felder
+                return dataFields.map(field => {
+                    let value = String(row[field] || '').replace(/"/g, '""'); // Escapen von Anführungszeichen
+                    if (value.includes(';') || value.includes('\n') || value.includes('"')) {
+                        value = `"${value}"`; // Umschließen mit Anführungszeichen bei Sonderzeichen
+                    }
+                    return value;
+                }).join(';');
+            });
+
+            // Gesamtes CSV zusammenfügen
+            const csvContent = [header, ...csvRows].join('\n');
+
+            // Download-Link erstellen
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'geänderte_daten.csv'; 
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert('Daten wurden als "geänderte_daten.csv" heruntergeladen.');
+        }
+
+        // Initialisierung
+        data = parseCSV(csvText);
+        renderTable();
+    </script>
+
+</body>
+</html>
