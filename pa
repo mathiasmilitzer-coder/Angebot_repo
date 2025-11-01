@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preisvergleich Fahrzeugaufbereitung (Ihre Preise vs. Markt)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Modernes, sauberes CSS */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        h1, h2 {
+            color: #007BFF;
+            border-bottom: 2px solid #007BFF;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        /* Filter-Steuerung */
+        #filter-controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        #filter-controls label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        #vehicleFilter {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+        }
+        /* Container für die Grafik */
+        #chart-container {
+            width: 80%; /* Breite anpassen */
+            margin: 40px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .status-günstiger {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .status-marktgerecht {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .status-teurer {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Preisvergleich Fahrzeugaufbereitung in Deutschland</h1>
+    <p>Vergleich Ihrer Brutto-Preise mit typischen Marktpreisspannen (recherchiert).</p>
+
+    <div id="filter-controls">
+        <label for="vehicleFilter">Fahrzeugklasse auswählen:</label>
+        <select id="vehicleFilter" onchange="filterData()">
+            <option value="ALL">Alle anzeigen</option>
+            </select>
+    </div>
+    <h2>Grafische Übersicht: Durchschnittspreise pro Dienstleistung</h2>
+    <div id="chart-container">
+        <canvas id="priceChart"></canvas>
+    </div>
+
+    <h2>Detaillierte Preis-Tabelle</h2>
+    <table id="priceTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">Dienstleistung</th>
+                <th onclick="sortTable(1)">Fahrzeugart</th>
+                <th>Ihr Preis Brutto (€)</th>
+                <th>Marktpreisspanne (€)</th>
+                <th onclick="sortTable(4)">Marktposition</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+
+    <script>
+        // Ihre kopierten CSV-Daten (unverändert)
+        const csvData = `
+B-INN;Fahrzeuginnereinigung;BUS;83,99;99,95;Innen
+B-LA;Lackaufbereitung;BUS;168,03;200,06;Aussen
+B-FA;Fahrzeugaufbereitung;BUS;250,00;297,50;Aussen
+B-GER;Geruchsentfernung;BUS;83,99;99,95;Innen
+B-HIM;Himmel-Reinigung;BUS;58,78;69,95;Innen
+B-HAAR;Hundehaarentfernung;BUS;83,99;99,95;Innen
+B-LED;Lederpflege;BUS;67,18;79,94;Innen
+B-NANO-L;Nano-Lack-Versiegelung;BUS;545,38;649,00;Aussen
+B-NANO-S;Nano-Scheiben-Versiegelung;BUS;100,84;120,00;Aussen
+B-PV;Politur / Versiegelung;BUS;117,65;140,00;Aussen
+B-POL;Polsterreinigung;BUS;83,99;99,95;Innen
+B-TEP;Teppichaufbereitung;BUS;75,50;89,85;Innen
+DU-LA;Lackaufbereitung;BUS;377,31;449,01;Aussen
+DU-PV;Politur / Versiegelung;BUS;210,08;250,00;Aussen
+DU-FA;Fahrzeugaufbereitung;BUS;270,00;321,30;Aussen
+M-INN;Bus-Innenreinigung;BUS;235,00;279,65;Innen
+S-CER;Ceramic Versiegelung;BUS;1638,66;1950,00;Aussen
+D-FA;Fahrzeugaufbereitung;VAN;230,00;273,70;Aussen
+K-CER;Ceramic Versiegelung;KOMBI;546,22;650,00;Aussen
+K-INN;Fahrzeuginnereinigung;KOMBI;58,78;69,95;Innen
+K-GER;Geruchsentfernung;KOMBI;67,18;79,94;Innen
+K-HIM;Himmel-Reinigung;KOMBI;58,78;69,95;Innen
+K-HAAR;Hundehaarentfernung;KOMBI;58,78;69,95;Innen
+K-LA;Lackaufbereitung;KOMBI;142,82;170,06;Aussen
+K-LED;Lederpflege;KOMBI;58,78;69,95;Innen
+K-NANO-L;Nano-Lack-Versiegelung;KOMBI;293,82;349,65;Aussen
+K-NANO-S;Nano-Scheiben-Versiegelung;KOMBI;83,99;99,95;Aussen
+K-PV;Politur / Versiegelung;KOMBI;67,18;79,94;Aussen
+K-POL;Polsterreinigung;KOMBI;58,78;69,95;Innen
+K-TEP;Teppichaufbereitung;KOMBI;75,58;90,04;Innen
+L-CER;Ceramic Versiegelung;LIMO;630,25;750,00;Aussen
+L-INN;Fahrzeuginnereinigung;LIMO;58,78;69,95;Innen
+L-GER;Geruchsentfernung;LIMO;67,18;79,94;Innen
+L-HIM;Himmel-Reinigung;LIMO;58,78;69,95;Innen
+L-HAAR;Hundehaarentfernung;LIMO;58,78;69,95;Innen
+L-LA;Lackaufbereitung;LIMO;142,82;170,06;Aussen
+L-LED;Lederpflege;LIMO;58,78;69,95;Innen
+L-NANO-L;Nano-Lack-Versiegelung;LIMO;293,28;349,00;Aussen
+L-NANO-S;Nano-Scheiben-Versiegelung;LIMO;83,99;99,95;Aussen
+L-PV;Politur / Versiegelung;LIMO;67,18;79,94;Aussen
+L-POL;Polsterreinigung;LIMO;58,78;69,95;Innen
+L-TEP;Teppichaufbereitung;LIMO;75,50;89,85;Innen
+P-CER;Ceramic Versiegelung;PKW;462,18;550,00;Aussen
+P-FA;Fahrzeugaufbereitung;PKW;140,00;166,60;Aussen
+P-INN;Fahrzeuginnereinigung;PKW;58,78;69,95;Innen
+P-GER;Geruchsentfernung;PKW;50,37;59,94;Innen
+P-HIM;Himmel-Reinigung;PKW;58,78;69,95;Innen
+P-HAAR;Hundehaarentfernung;PKW;58,78;69,95;Innen
+P-LA;Lackaufbereitung;PKW;126,05;150,00;Aussen
+P-LED;Lederpflege;PKW;58,77;69,94;Innen
+P-NANO-L;Nano-Lack-Versiegelung;PKW;251,26;299,00;Aussen
+P-NANO-S;Nano-Scheiben-Versiegelung;PKW;83,99;99,95;Aussen
+P-PV;Politur / Versiegelung;PKW;58,78;69,95;Aussen
+P-POL;Polsterreinigung;PKW;58,77;69,94;Innen
+P-TEP;Teppichaufbereitung;PKW;50,38;59,95;Innen
+S-CER;Ceramic Versiegelung;SUV;798,32;950,00;Aussen
+S-FA;Fahrzeugaufbereitung;SUV;150,00;178,50;Aussen
+S-INN;Fahrzeuginnereinigung;SUV;67,18;79,94;Innen
+S-GER;Geruchsentfernung;SUV;67,18;79,94;Innen
+S-HIM;Himmel-Reinigung;SUV;58,78;69,95;Innen
+S-HAAR;Hundehaarentfernung;SUV;67,18;79,94;Innen
+S-LA;Lackaufbereitung;SUV;151,22;180,00;Aussen
+S-LED;Lederpflege;SUV;67,18;79,94;Innen
+S-NANO-L;Nano-Lack-Versiegelung;SUV;420,16;500,00;Aussen
+S-NANO-S;Nano-Scheiben-Versiegelung;SUV;83,99;99,95;Aussen
+S-PV;Politur / Versiegelung;SUV;117,65;140,00;Aussen
+S-POL;Polsterreinigung;SUV;67,18;79,94;Innen
+S-TEP;Teppichaufbereitung;SUV;75,59;90,05;Innen
+T-PV;Politur / Versiegelung;TRANSPORTER;180,00;214,20;Aussen
+X-WAST;Fahrzeugwäsche Transporter;TRANSPORTER;60,00;71,40;Aussen
+W-CELZ;Ceramic Langzeitversiegelung;WOMO;1764,71;2100,01;Aussen
+W-CER;Ceramic Versiegelung;WOMO;1764,71;2100,01;Aussen
+W-INN;Fahrzeuginnenreinigung;WOMO;168,03;200,06;Innen
+W-NANO-L;Nano-Lack-Versiegelung;WOMO;1176,47;1400,01;Aussen
+W-NANO-S;Nano-Scheiben-Versiegelung;WOMO;126,05;150,00;Aussen
+W-PV;Politur / Versiegelung;WOMO;420,17;500,00;Aussen
+W-W;Wohnmobilwäsche;WOMO;210,08;250,00;Aussen
+X-CABV;Cabrioverdeck Versiegelung;CABRIO;32,77;39,01;Aussen
+X-CABR;Cabrioverdeck-Reinigung;CABRIO;50,42;60,00;Aussen
+X-AUFW-BUS;Arbeiten nach Aufwand;BUS;69,00;82,11;Innen
+X-AUFW-CABRIO;Arbeiten nach Aufwand;CABRIO;69,00;82,11;Innen
+X-AUFW-KOMBI;Arbeiten nach Aufwand;KOMBI;69,00;82,11;Innen
+X-AUFW-LIMO;Arbeiten nach Aufwand;LIMO;69,00;82,11;Innen
+X-AUFW-PKW;Arbeiten nach Aufwand;PKW;69,00;82,11;Innen
+X-AUFW-SUV;Arbeiten nach Aufwand;SUV;69,00;82,11;Innen
+X-AUFW-TRANSPORTER;Arbeiten nach Aufwand;TRANSPORTER;69,00;82,11;Innen
+X-AUFW-VAN;Arbeiten nach Aufwand;VAN;69,00;82,11;Innen
+X-AUFW-WOMO;Arbeiten nach Aufwand;WOMO;69,00;82,11;Innen
+X-DELL-BUS;Dellenbeseitigung;BUS;75,63;90,01;Aussen
+X-DELL-CABRIO;Dellenbeseitigung;CABRIO;75,63;90,01;Aussen
+X-DELL-KOMBI;Dellenbeseitigung;KOMBI;75,63;90,01;Aussen
+X-DELL-LIMO;Dellenbeseitigung;LIMO;75,63;90,01;Aussen
+X-DELL-PKW;Dellenbeseitigung;PKW;75,63;90,01;Aussen
+X-DELL-SUV;Dellenbeseitigung;SUV;75,63;90,01;Aussen
+X-DELL-TRANSPORTER;Dellenbeseitigung;TRANSPORTER;75,63;90,01;Aussen
+X-DELL-VAN;Dellenbeseitigung;VAN;75,63;90,01;Aussen
+X-DELL-WOMO;Dellenbeseitigung;WOMO;75,63;90,01;Aussen
+X-DWER-BUS;Demontage Werbebeschriftung;BUS;49,58;59,00;Aussen
+X-DWER-CABRIO;Demontage Werbebeschriftung;CABRIO;49,58;59,00;Aussen
+X-DWER-KOMBI;Demontage Werbebeschriftung;KOMBI;49,58;59,00;Aussen
+X-DWER-LIMO;Demontage Werbebeschriftung;LIMO;49,58;59,00;Aussen
+X-DWER-PKW;Demontage Werbebeschriftung;PKW;49,58;59,00;Aussen
+X-DWER-SUV;Demontage Werbebeschriftung;SUV;49,58;59,00;Aussen
+X-DWER-TRANSPORTER;Demontage Werbebeschriftung;TRANSPORTER;49,58;59,00;Aussen
+X-DWER-VAN;Demontage Werbebeschriftung;VAN;49,58;59,00;Aussen
+X-DWER-WOMO;Demontage Werbebeschriftung;WOMO;49,58;59,00;Aussen
+X-ENE-BUS;Energiekosten Pauschale;BUS;16,81;20,01;Innen
+X-ENE-CABRIO;Energiekosten Pauschale;CABRIO;16,81;20,01;Innen
+X-ENE-KOMBI;Energiekosten Pauschale;KOMBI;16,81;20,01;Innen
+X-ENE-LIMO;Energiekosten Pauschale;LIMO;16,81;20,01;Innen
+X-ENE-PKW;Energiekosten Pauschale;PKW;16,81;20,01;Innen
+X-ENE-SUV;Energiekosten Pauschale;SUV;16,81;20,01;Innen
+X-ENE-TRANSPORTER;Energiekosten Pauschale;TRANSPORTER;16,81;20,01;Innen
+X-ENE-VAN;Energiekosten Pauschale;VAN;16,81;20,01;Innen
+X-ENE-WOMO;Energiekosten Pauschale;WOMO;16,81;20,01;Innen
+X-WAS-BUS;Fahrzeugwäsche Spezial;BUS;45,00;53,55;Aussen
+X-WAS-CABRIO;Fahrzeugwäsche Spezial;CABRIO;45,00;53,55;Aussen
+X-WAS-KOMBI;Fahrzeugwäsche Spezial;KOMBI;45,00;53,55;Aussen
+X-WAS-LIMO;Fahrzeugwäsche Spezial;LIMO;45,00;53,55;Aussen
+X-WAS-PKW;Fahrzeugwäsche Spezial;PKW;45,00;53,55;Aussen
+X-WAS-SUV;Fahrzeugwäsche Spezial;SUV;45,00;53,55;Aussen
+X-WAS-TRANSPORTER;Fahrzeugwäsche Spezial;TRANSPORTER;45,00;53,55;Aussen
+X-WAS-VAN;Fahrzeugwäsche Spezial;VAN;45,00;53,55;Aussen
+X-WAS-WOMO;Fahrzeugwäsche Spezial;WOMO;45,00;53,55;Aussen
+X-WASN-BUS;Fahrzeugwäsche normal;BUS;33,61;40,04;Aussen
+X-WASN-CABRIO;Fahrzeugwäsche normal;CABRIO;33,61;40,04;Aussen
+X-WASN-KOMBI;Fahrzeugwäsche normal;KOMBI;33,61;40,04;Aussen
+X-WASN-LIMO;Fahrzeugwäsche normal;LIMO;33,61;40,04;Aussen
+X-WASN-PKW;Fahrzeugwäsche normal;PKW;33,61;40,04;Aussen
+X-WASN-SUV;Fahrzeugwäsche normal;SUV;33,61;40,04;Aussen
+X-WASN-TRANSPORTER;Fahrzeugwäsche normal;TRANSPORTER;33,61;40,04;Aussen
+X-WASN-VAN;Fahrzeugwäsche normal;VAN;33,61;40,04;Aussen
+X-WASN-WOMO;Fahrzeugwäsche normal;WOMO;33,61;40,04;Aussen
+X-HOL-BUS;Hol- und Bring-Service;BUS;25,00;29,75;Innen
+X-HOL-CABRIO;Hol- und Bring-Service;CABRIO;25,00;29,75;Innen
+X-HOL-KOMBI;Hol- und Bring-Service;KOMBI;25,00;29,75;Innen
+X-HOL-LIMO;Hol- und Bring-Service;LIMO;25,00;29,75;Innen
+X-HOL-PKW;Hol- und Bring-Service;PKW;25,00;29,75;Innen
+X-HOL-SUV;Hol- und Bring-Service;SUV;25,00;29,75;Innen
+X-HOL-TRANSPORTER;Hol- und Bring-Service;TRANSPORTER;25,00;29,75;Innen
+X-HOL-VAN;Hol- und Bring-Service;VAN;25,00;29,75;Innen
+X-HOL-WOMO;Hol- und Bring-Service;WOMO;25,00;29,75;Innen
+X-KLI-BUS;Klimafilter wechsel;BUS;57,98;69,00;Innen
+X-KLI-CABRIO;Klimafilter wechsel;CABRIO;57,98;69,00;Innen
+X-KLI-KOMBI;Klimafilter wechsel;KOMBI;57,98;69,00;Innen
+X-KLI-LIMO;Klimafilter wechsel;LIMO;57,98;69,00;Innen
+X-KLI-PKW;Klimafilter wechsel;PKW;57,98;69,00;Innen
+X-KLI-SUV;Klimafilter wechsel;SUV;57,98;69,00;Innen
+X-KLI-TRANSPORTER;Klimafilter wechsel;TRANSPORTER;57,98;69,00;Innen
+X-KLI-VAN;Klimafilter wechsel;VAN;57,98;69,00;Innen
+X-KLI-WOMO;Klimafilter wechsel;WOMO;57,98;69,00;Innen
+X-MOW-BUS;Montage Werbebeschriftung;BUS;39,95;47,54;Aussen
+X-MOW-CABRIO;Montage Werbebeschriftung;CABRIO;39,95;47,54;Aussen
+X-MOW-KOMBI;Montage Werbebeschriftung;KOMBI;39,95;47,54;Aussen
+X-MOW-LIMO;Montage Werbebeschriftung;LIMO;39,95;47,54;Aussen
+X-MOW-PKW;Montage Werbebeschriftung;PKW;39,95;47,54;Aussen
+X-MOW-SUV;Montage Werbebeschriftung;SUV;39,95;47,54;Aussen
+X-MOW-TRANSPORTER;Montage Werbebeschriftung;TRANSPORTER;39,95;47,54;Aussen
+X-MOW-VAN;Montage Werbebeschriftung;VAN;39,95;47,54;Aussen
+X-MOW-WOMO;Montage Werbebeschriftung;WOMO;39,95;47,54;Aussen
+X-MOT-BUS;Motorwäsche;BUS;58,82;70,00;Aussen
+X-MOT-CABRIO;Motorwäsche;CABRIO;58,82;70,00;Aussen
+X-MOT-KOMBI;Motorwäsche;KOMBI;58,82;70,00;Aussen
+X-MOT-LIMO;Motorwäsche;LIMO;58,82;70,00;Aussen
+X-MOT-PKW;Motorwäsche;PKW;58,82;70,00;Aussen
+X-MOT-SUV;Motorwäsche;SUV;58,82;70,00;Aussen
+X-MOT-TRANSPORTER;Motorwäsche;TRANSPORTER;58,82;70,00;Aussen
+X-MOT-VAN;Motorwäsche;VAN;58,82;70,00;Aussen
+X-MOT-WOMO;Motorwäsche;WOMO;58,82;70,00;Aussen
+X-OZO-BUS;OZON Behandlung;BUS;58,77;69,94;Innen
+X-OZO-CABRIO;OZON Behandlung;CABRIO;58,77;69,94;Innen
+X-OZO-KOMBI;OZON Behandlung;KOMBI;58,77;69,94;Innen
+X-OZO-LIMO;OZON Behandlung;LIMO;58,77;69,94;Innen
+X-OZO-PKW;OZON Behandlung;PKW;58,77;69,94;Innen
+X-OZO-SUV;OZON Behandlung;SUV;58,77;69,94;Innen
+X-OZO-TRANSPORTER;OZON Behandlung;TRANSPORTER;58,77;69,94;Innen
+X-OZO-VAN;OZON Behandlung;VAN;58,77;69,94;Innen
+X-OZO-WOMO;OZON Behandlung;WOMO;58,77;69,94;Innen
+X-SWA-BUS;Scheinwerfer Aufbereitung;BUS;126,05;150,00;Aussen
+X-SWA-CABRIO;Scheinwerfer Aufbereitung;CABRIO;126,05;150,00;Aussen
+X-SWA-KOMBI;Scheinwerfer Aufbereitung;KOMBI;126,05;150,00;Aussen
+X-SWA-LIMO;Scheinwerfer Aufbereitung;LIMO;126,05;150,000;Aussen
+X-SWA-PKW;Scheinwerfer Aufbereitung;PKW;126,05;150,00;Aussen
+X-SWA-SUV;Scheinwerfer Aufbereitung;SUV;126,05;150,00;Aussen
+X-SWA-TRANSPORTER;Scheinwerfer Aufbereitung;TRANSPORTER;126,05;150,00;Aussen
+X-SWA-VAN;Scheinwerfer Aufbereitung;VAN;126,05;150,00;Aussen
+X-SWA-WOMO;Scheinwerfer Aufbereitung;WOMO;126,05;150,00;Aussen
+`;
+
+        // Recherchierte Marktpreisspannen (Brutto in EUR) für PKW/KOMBI/LIMO
+        const marketPrices = {
+            'Ceramic Versiegelung': {
+                PKW: { min: 750, max: 1500, label: '750 - 1.500+ €' },
+                KOMBI: { min: 750, max: 1600, label: '750 - 1.600+ €' },
+                LIMO: { min: 750, max: 1500, label: '750 - 1.500+ €' },
+                SUV: { min: 800, max: 1800, label: '800 - 1.800+ €' },
+                BUS: { min: 1800, max: 3000, label: '1.800 - 3.000+ €' },
+                WOMO: { min: 2050, max: 3250, label: '2.050 - 3.250+ €' },
+            },
+            'Nano-Lack-Versiegelung': {
+                PKW: { min: 300, max: 400, label: '300 - 400 €' },
+                KOMBI: { min: 350, max: 450, label: '350 - 450 €' },
+                LIMO: { min: 300, max: 400, label: '300 - 400 €' },
+                SUV: { min: 450, max: 600, label: '450 - 600 €' },
+            },
+            'Fahrzeugaufbereitung': { 
+                PKW: { min: 200, max: 400, label: '200 - 400 €' },
+                KOMBI: { min: 250, max: 450, label: '250 - 450 €' },
+                LIMO: { min: 200, max: 400, label: '200 - 400 €' },
+                SUV: { min: 250, max: 500, label: '250 - 500 €' },
+            },
+            'Lackaufbereitung': {
+                PKW: { min: 100, max: 200, label: '100 - 200 €' },
+                KOMBI: { min: 120, max: 220, label: '120 - 220 €' },
+                LIMO: { min: 100, max: 200, label: '100 - 200 €' },
+                SUV: { min: 150, max: 250, label: '150 - 250 €' },
+            },
+            'Politur / Versiegelung': {
+                PKW: { min: 70, max: 150, label: '70 - 150 €' },
+                KOMBI: { min: 70, max: 150, label: '70 - 150 €' },
+                LIMO: { min: 70, max: 150, label: '70 - 150 €' },
+                SUV: { min: 120, max: 200, label: '120 - 200 €' },
+            },
+            'Fahrzeuginnereinigung': {
+                PKW: { min: 50, max: 150, label: '50 - 150 €' },
+                KOMBI: { min: 60, max: 160, label: '60 - 160 €' },
+                LIMO: { min: 50, max: 150, label: '50 - 150 €' },
+                SUV: { min: 70, max: 180, label: '70 - 180 €' },
+            },
+            'Polsterreinigung': {
+                PKW: { min: 50, max: 120, label: '50 - 120 €' },
+            },
+            'Geruchsentfernung': {
+                PKW: { min: 60, max: 80, label: '60 - 80 €' },
+            },
+            'OZON Behandlung': {
+                PKW: { min: 60, max: 250, label: '60 - 250 €' },
+            },
+             'Scheinwerfer Aufbereitung': {
+                PKW: { min: 100, max: 200, label: '100 - 200 €' },
+            },
+        };
+
+        const tableBody = document.querySelector('#priceTable tbody');
+        let rawDataArray = []; // Alle Daten
+        let filteredDataArray = []; // Gefilterte Daten für Anzeige und Sortierung
+        let chartInstance = null; // Variable für die Chart-Instanz
+
+        // 1. Daten parsen und aufbereiten (initial)
+        function parseData() {
+            const vehicleTypes = new Set();
+            csvData.trim().split('\n').forEach(line => {
+                if (line.trim() === '' || line.startsWith('//')) return;
+
+                const parts = line.split(';');
+                if (parts.length < 6) return;
+
+                const serviceName = parts[1].trim();
+                const vehicleType = parts[2].trim();
+                const priceBrutto = parseFloat(parts[4].trim().replace(',', '.'));
+
+                if (!isNaN(priceBrutto)) {
+                    rawDataArray.push({
+                        service: serviceName,
+                        vehicle: vehicleType,
+                        price: priceBrutto
+                    });
+                    vehicleTypes.add(vehicleType);
+                }
+            });
+            // Dropdown mit Fahrzeugtypen füllen
+            populateFilter(Array.from(vehicleTypes).sort());
+            // Initialfilterung
+            filterData(); 
+        }
+
+        // Dropdown füllen
+        function populateFilter(vehicles) {
+            const filter = document.getElementById('vehicleFilter');
+            vehicles.forEach(vehicle => {
+                const option = document.createElement('option');
+                option.value = vehicle;
+                option.textContent = vehicle;
+                filter.appendChild(option);
+            });
+        }
+
+        // 2. Filterfunktion (wird bei Auswahländerung aufgerufen)
+        function filterData() {
+            const selectedVehicle = document.getElementById('vehicleFilter').value;
+            
+            if (selectedVehicle === 'ALL') {
+                filteredDataArray = [...rawDataArray]; // Alle Daten kopieren
+            } else {
+                filteredDataArray = rawDataArray.filter(item => item.vehicle === selectedVehicle);
+            }
+
+            renderTable(filteredDataArray);
+            createPriceChart(filteredDataArray, selectedVehicle);
+        }
+
+        // 3. Vergleich durchführen und Tabelle rendern
+        function renderTable(data) {
+            tableBody.innerHTML = '';
+            data.forEach(item => {
+                const vehicleKey = item.vehicle.toUpperCase();
+                const marketData = marketPrices[item.service] ? marketPrices[item.service][vehicleKey] : null;
+
+                let marketStatus = 'Marktpreis nicht bekannt';
+                let marketPriceLabel = 'N/A';
+                let statusClass = '';
+
+                if (marketData) {
+                    marketPriceLabel = marketData.label;
+                    const minPrice = marketData.min;
+                    const maxPrice = marketData.max;
+                    const avgPrice = (minPrice + maxPrice) / 2;
+
+                    if (item.price < minPrice * 0.85) { 
+                        marketStatus = 'DEUTLICH GÜNSTIGER';
+                        statusClass = 'status-günstiger';
+                    } else if (item.price < avgPrice) {
+                        marketStatus = 'GÜNSTIGER als der Durchschnitt';
+                        statusClass = 'status-günstiger';
+                    } else if (item.price >= avgPrice && item.price <= maxPrice) {
+                        marketStatus = 'MARKTGERECHT';
+                        statusClass = 'status-marktgerecht';
+                    } else {
+                        marketStatus = 'ÜBER dem Marktdurchschnitt (Überprüfung empfohlen)';
+                        statusClass = 'status-teurer';
+                    }
+                }
+
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = item.service;
+                row.insertCell(1).textContent = item.vehicle;
+                row.insertCell(2).textContent = item.price.toFixed(2).replace('.', ',') + ' €';
+                row.insertCell(3).textContent = marketPriceLabel;
+                row.insertCell(4).innerHTML = `<span class="${statusClass}">${marketStatus}</span>`;
+            });
+        }
+
+        // 4. Sortierfunktion (wendet sich auf filteredDataArray an)
+        let sortDirection = 1; 
+        let sortedColumn = -1;
+        function sortTable(n) {
+             if (n === sortedColumn) {
+                sortDirection = sortDirection * -1; 
+            } else {
+                sortDirection = 1;
+                sortedColumn = n;
+            }
+
+            filteredDataArray.sort((a, b) => {
+                let valA, valB;
+
+                switch(n) {
+                    case 0: 
+                        valA = a.service.toUpperCase();
+                        valB = b.service.toUpperCase();
+                        break;
+                    case 1: 
+                        valA = a.vehicle.toUpperCase();
+                        valB = b.vehicle.toUpperCase();
+                        break;
+                    case 2: 
+                        valA = a.price;
+                        valB = b.price;
+                        break;
+                    case 4: 
+                        const statusOrder = {
+                            'DEUTLICH GÜNSTIGER': 1,
+                            'GÜNSTIGER als der Durchschnitt': 2,
+                            'MARKTGERECHT': 3,
+                            'Marktpreis nicht bekannt': 4,
+                            'ÜBER dem Marktdurchschnitt (Überprüfung empfohlen)': 5
+                        };
+                        const itemAStatus = getMarketStatus(a);
+                        const itemBStatus = getMarketStatus(b);
+                        valA = statusOrder[itemAStatus] || 99;
+                        valB = statusOrder[itemBStatus] || 99;
+                        break;
+                    default:
+                        return 0;
+                }
+
+                let comparison = 0;
+                if (valA > valB) {
+                    comparison = 1;
+                } else if (valA < valB) {
+                    comparison = -1;
+                }
+
+                return comparison * sortDirection;
+            });
+
+            function getMarketStatus(item) {
+                const vehicleKey = item.vehicle.toUpperCase();
+                const marketData = marketPrices[item.service] ? marketPrices[item.service][vehicleKey] : null;
+
+                if (!marketData) return 'Marktpreis nicht bekannt';
+
+                const minPrice = marketData.min;
+                const maxPrice = marketData.max;
+                const avgPrice = (minPrice + maxPrice) / 2;
+
+                if (item.price < minPrice * 0.85) return 'DEUTLICH GÜNSTIGER';
+                if (item.price < avgPrice) return 'GÜNSTIGER als der Durchschnitt';
+                if (item.price >= avgPrice && item.price <= maxPrice) return 'MARKTGERECHT';
+                return 'ÜBER dem Marktdurchschnitt (Überprüfung empfohlen)';
+            }
+
+
+            renderTable(filteredDataArray);
+        }
+
+        // 5. Grafikerstellung (mit dynamischem Filter)
+        function createPriceChart(data, selectedVehicle) {
+            // Alte Grafik löschen, falls vorhanden
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            // Filtern der wichtigsten Dienstleistungen für die Grafik (relevant für die ausgewählte Klasse)
+            const relevantServices = ['Ceramic Versiegelung', 'Fahrzeugaufbereitung', 'Lackaufbereitung', 'Fahrzeuginnereinigung', 'Politur / Versiegelung'];
+            const chartData = {};
+
+            // Gruppierung nach Dienstleistung
+            data.forEach(item => {
+                if (relevantServices.includes(item.service)) {
+                    const key = item.service;
+                    
+                    const marketData = marketPrices[item.service] ? marketPrices[item.service][item.vehicle.toUpperCase()] : null;
+                    const marketAvg = marketData ? (marketData.min + marketData.max) / 2 : 0;
+
+                    // Nur einen Eintrag pro Dienstleistung pro Fahrzeugtyp in der Grafik zeigen
+                    // Wir nehmen einfach den ersten gefundenen Preis, da Ihre Preise innerhalb einer Klasse pro Dienstleistung (meist) gleich sind.
+                    if (!chartData[key]) {
+                        chartData[key] = { yourPrice: item.price, marketAvg: marketAvg };
+                    }
+                }
+            });
+
+            const labels = [];
+            const yourPrices = [];
+            const marketAverages = [];
+
+            for (const key in chartData) {
+                labels.push(key);
+                yourPrices.push(chartData[key].yourPrice);
+                marketAverages.push(chartData[key].marketAvg);
+            }
+
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Ihr Preis (€)',
+                            data: yourPrices,
+                            backgroundColor: 'rgba(0, 123, 255, 0.7)',
+                            borderColor: 'rgba(0, 123, 255, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Marktdurchschnitt (€)',
+                            data: marketAverages,
+                            backgroundColor: 'rgba(255, 193, 7, 0.7)',
+                            borderColor: 'rgba(255, 193, 7, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: {
+                            display: true,
+                            text: selectedVehicle === 'ALL' ? 'Gesamtübersicht (Durchschnitt über alle Klassen)' : `Preisvergleich für: ${selectedVehicle}`
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Preis Brutto (€)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // Initialisierung beim Laden der Seite
+        parseData();
+    </script>
+
+</body>
+</html>
